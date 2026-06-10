@@ -5,10 +5,17 @@ import os
 from pathlib import Path
 import shlex
 
+
 def echo(user_input):
-   lst = shlex.split(user_input)
-   lst.pop(0)
-   return " ".join(lst)
+    lst = shlex.split(user_input)
+    lst.pop(0)
+    if '>' in lst:
+        idx = lst.index('>')
+        file_name = lst[idx + 1]
+        with open(file_name, 'w') as file:
+            file.write(" ".join(lst[:idx]))
+        return
+    print(" ".join(lst))
 
 
 def type_cmd(user_input) -> str:
@@ -27,7 +34,16 @@ def custom(user_input) -> bool:
     custom_exe = lst[0]
 
     if shutil.which(custom_exe):
-        subprocess.run(lst, text=True)
+        if '>' in lst:
+            idx = lst.index('>')
+            file_name = lst[idx + 1]
+            cmd_args = lst[:idx]
+            res = subprocess.run(cmd_args, capture_output=True, text=True)
+            if not res.stderr:
+                with open(file_name, 'w') as file:
+                    file.write(res.stdout)
+        else:
+            subprocess.run(lst, text=True)
         return True
 
     return False
@@ -54,8 +70,7 @@ def main():
         cmd = user_input.split(" ")[0]
 
         if cmd == "echo":
-            output = echo(user_input)
-            print(output)
+            echo(user_input)
             continue
 
         if cmd == "type":
