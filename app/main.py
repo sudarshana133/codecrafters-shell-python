@@ -16,7 +16,7 @@ def type_cmd(user_input) -> str:
     lst = user_input.split(" ")
     lst.pop(0)
     cmd = lst[0]
-    if cmd in ("echo", "type", "exit", "pwd"):
+    if cmd in ("echo", "type", "exit", "pwd", "cd"):
         return f"{cmd} is a shell builtin"
     if shutil.which(cmd):
         return f"{cmd} is {shutil.which(cmd)}"
@@ -32,6 +32,16 @@ def custom(user_input) -> bool:
         return True
 
     return False
+
+
+def change_dir(user_input):
+    lst = user_input.split()
+    path = lst[1]
+
+    try:
+        os.chdir(path)
+    except:
+        print(f"cd: {path}: No such file or directory")
 
 
 def main():
@@ -55,6 +65,10 @@ def main():
         if cmd == "pwd":
             output = os.getcwd()
             print(output)
+            continue
+
+        if cmd == "cd":
+            change_dir(user_input)
             continue
 
         is_custom = custom(user_input)
