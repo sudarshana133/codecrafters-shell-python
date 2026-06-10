@@ -1,6 +1,7 @@
 import sys
 import shutil
 import subprocess
+import os
 
 
 def echo(user_input):
@@ -48,6 +49,11 @@ def main():
 
         if cmd == "type":
             output = (type_cmd(user_input))
+            print(output)
+            continue
+
+        if cmd == "pwd":
+            output = os.getcwd()
             print(output)
             continue
 
