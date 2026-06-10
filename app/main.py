@@ -2,6 +2,7 @@ import sys
 import shutil
 import subprocess
 import os
+from pathlib import Path
 
 
 def echo(user_input):
@@ -28,7 +29,7 @@ def custom(user_input) -> bool:
     custom_exe = lst[0]
 
     if shutil.which(custom_exe):
-        res = subprocess.run(lst, text=True)
+        subprocess.run(lst, text=True)
         return True
 
     return False
@@ -39,6 +40,8 @@ def change_dir(user_input):
     path = lst[1]
 
     try:
+        if path == "~":
+            path = str(Path.home())
         os.chdir(path)
     except:
         print(f"cd: {path}: No such file or directory")
