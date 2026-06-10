@@ -12,9 +12,11 @@ def echo(user_input):
     if '>' in lst or '1>' in lst:
         idx = lst.index('>') if '>' in lst else lst.index('1>')
         file_name = lst[idx + 1]
-        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        dir_name = os.path.dirname(file_name)
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
         with open(file_name, 'w') as file:
-            file.write(" ".join(lst[:idx]))
+            file.write(" ".join(lst[:idx]) + "\n")
         return
     print(" ".join(lst))
 
@@ -38,7 +40,9 @@ def custom(user_input) -> bool:
         if '>' in lst or '1>' in lst:
             idx = lst.index('>') if '>' in lst else lst.index('1>')
             file_name = lst[idx + 1]
-            os.makedirs(os.path.dirname(file_name), exist_ok=True)
+            dir_name = os.path.dirname(file_name)
+            if dir_name:
+                os.makedirs(dir_name, exist_ok=True)
             cmd_args = lst[:idx]
             res = subprocess.run(cmd_args, capture_output=True, text=True)
             if not res.stderr:
