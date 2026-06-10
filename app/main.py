@@ -44,10 +44,9 @@ def custom(user_input) -> bool:
             if dir_name:
                 os.makedirs(dir_name, exist_ok=True)
             cmd_args = lst[:idx]
-            res = subprocess.run(cmd_args, capture_output=True, text=True)
-            if not res.stderr:
-                with open(file_name, 'w') as file:
-                    file.write(res.stdout)
+            res = subprocess.run(cmd_args, stdout=subprocess.PIPE, text=True)
+            with open(file_name, 'w') as file:
+                file.write(res.stdout)
         else:
             subprocess.run(lst, text=True)
         return True
