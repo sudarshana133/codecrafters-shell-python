@@ -16,7 +16,7 @@ def type_cmd(user_input) -> str:
     lst = user_input.split(" ")
     lst.pop(0)
     cmd = lst[0]
-    if cmd in ("echo", "type", "exit"):
+    if cmd in ("echo", "type", "exit", "pwd"):
         return f"{cmd} is a shell builtin"
     if shutil.which(cmd):
         return f"{cmd} is {shutil.which(cmd)}"
