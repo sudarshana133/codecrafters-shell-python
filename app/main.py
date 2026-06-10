@@ -9,8 +9,8 @@ import shlex
 def echo(user_input):
     lst = shlex.split(user_input)
     lst.pop(0)
-    if '>' in lst:
-        idx = lst.index('>')
+    if '>' in lst or '1>' in lst:
+        idx = lst.index('>') if '>' in lst else lst.index('1>')
         file_name = lst[idx + 1]
         with open(file_name, 'w') as file:
             file.write(" ".join(lst[:idx]))
@@ -34,8 +34,8 @@ def custom(user_input) -> bool:
     custom_exe = lst[0]
 
     if shutil.which(custom_exe):
-        if '>' in lst:
-            idx = lst.index('>')
+        if '>' in lst or '1>' in lst:
+            idx = lst.index('>') if '>' in lst else lst.index('1>')
             file_name = lst[idx + 1]
             cmd_args = lst[:idx]
             res = subprocess.run(cmd_args, capture_output=True, text=True)
