@@ -3,19 +3,12 @@ import shutil
 import subprocess
 import os
 from pathlib import Path
-
+import shlex
 
 def echo(user_input):
-    lst = user_input.split(" ")
-    output = ""
-    lst.pop(0)
-
-    for i in range(len(lst)):
-        word: str = lst[i]
-        if "'" in word:
-            word = word.replace("'", "")
-        output += word + " "
-    return output.strip()
+   lst = shlex.split(user_input)
+   lst.pop(0)
+   return " ".join(lst)
 
 
 def type_cmd(user_input) -> str:
