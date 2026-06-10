@@ -22,18 +22,15 @@ def type_cmd(user_input) -> str:
     return f"{cmd}: not found"
 
 
-def custom(user_input) -> str | None:
+def custom(user_input) -> bool:
     lst = user_input.split(" ")
     custom_exe = lst[0]
 
     if shutil.which(custom_exe):
-        res = subprocess.run(lst, capture_output=True, text=True)
-        if res.stdout:
-            return res.stdout
+        res = subprocess.run(lst, text=True)
+        return True
 
-        return None
-
-    return None
+    return False
 
 
 def main():
@@ -54,9 +51,8 @@ def main():
             print(output)
             continue
 
-        output = custom(user_input)
-        if output:
-            print(output)
+        is_custom = custom(user_input)
+        if is_custom:
             continue
 
         print(f"{user_input}: command not found")
