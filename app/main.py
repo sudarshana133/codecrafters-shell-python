@@ -23,7 +23,7 @@ def type_cmd(user_input) -> str:
 
 
 def custom(user_input) -> bool:
-    lst = user_input.split(" ")
+    lst = shlex.split(user_input)
     custom_exe = lst[0]
 
     if shutil.which(custom_exe):
