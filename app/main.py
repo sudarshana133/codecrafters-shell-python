@@ -1,4 +1,5 @@
 import sys
+import shutil
 
 
 def echo(user_input):
@@ -15,6 +16,8 @@ def type_cmd(user_input) -> str:
     cmd = lst[0]
     if cmd in ("echo", "type", "exit"):
         return f"{cmd} is a shell builtin"
+    if shutil.which(cmd):
+        return f"{cmd} is {shutil.which(cmd)}"
     return f"{cmd}: not found"
 
 
