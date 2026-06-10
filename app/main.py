@@ -1,5 +1,6 @@
 import sys
 import shutil
+import subprocess
 
 
 def echo(user_input):
@@ -21,6 +22,20 @@ def type_cmd(user_input) -> str:
     return f"{cmd}: not found"
 
 
+def custom(user_input) -> str | None:
+    lst = user_input.split(" ")
+    custom_exe = lst[0]
+
+    if shutil.which(custom_exe):
+        res = subprocess.run(lst, capture_output=True, text=True)
+        if res.stdout:
+            return res.stdout
+
+        return None
+
+    return None
+
+
 def main():
     while True:
         sys.stdout.write("$ ")
@@ -36,6 +51,11 @@ def main():
 
         if cmd == "type":
             output = (type_cmd(user_input))
+            print(output)
+            continue
+
+        output = custom(user_input)
+        if output:
             print(output)
             continue
 
