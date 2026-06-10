@@ -8,9 +8,14 @@ from pathlib import Path
 def echo(user_input):
     lst = user_input.split(" ")
     output = ""
-    for i in range(1, len(lst)):
-        output += lst[i] + " "
-    return output
+    lst.pop(0)
+
+    for i in range(len(lst)):
+        word: str = lst[i]
+        if "'" in word:
+            word = word.replace("'", "")
+        output += word + " "
+    return output.strip()
 
 
 def type_cmd(user_input) -> str:
