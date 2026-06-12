@@ -11,12 +11,12 @@ def split(user_input):
     return lst[0], lst[1:]
 
 
-def create_and_write(file_name, content):
+def create_and_write(file_name, content, mode='w'):
     dir_name = os.path.dirname(file_name)
     if dir_name:
         os.makedirs(dir_name, exist_ok=True)
 
-    with open(file_name, 'w') as file:
+    with open(file_name, mode) as file:
         file.write(content)
 
 
@@ -31,6 +31,12 @@ def echo(args):
         file_name = args[idx + 1]
         create_and_write(file_name, "")
         print(" ".join(args[:idx]))
+
+    elif '>>' in args or "1>>" in args:
+        idx = args.index('>>') if ">>" in args else args.index("1>>")
+
+        file_name = args[idx + 1]
+        create_and_write(file_name, " ".join(args[:idx]) + "\n", 'a')
     else:
         print(" ".join(args))
 
@@ -62,6 +68,14 @@ def custom(custom_exe, args) -> bool:
 
             res = subprocess.run(cmd_args, stderr=subprocess.PIPE, text=True)
             create_and_write(file_name, res.stderr)
+
+        elif '>>' in args or "1>>" in args:
+            idx = args.index('>>') if ">>" in args else args.index("1>>")
+            file_name = args[idx + 1]
+            cmd_args = [custom_exe] + args[:idx]
+
+            res = subprocess.run(cmd_args, stdout=subprocess.PIPE, text=True)
+            create_and_write(file_name, res.stdout, 'a')
         else:
             subprocess.run([custom_exe] + args, text=True)
         return True
