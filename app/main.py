@@ -1,9 +1,9 @@
-import sys
 import shutil
 import subprocess
 import os
 from pathlib import Path
 import shlex
+import readline
 
 
 def split(user_input):
@@ -107,10 +107,32 @@ def change_dir(path):
         print(f"cd: {path}: No such file or directory")
 
 
+def completer(text, state):
+    options = ["echo", "exit"]
+    matches = [o for o in options if o.startswith(text)]
+
+    try:
+        return matches[state]
+    except IndexError:
+        return None
+
+
 def main():
+    # Configure readline once before the loop starts
+    readline.set_completer(completer)
+
+    # Handle macOS (libedit) vs Linux (GNU readline) bindings
+    if readline.__doc__ and 'libedit' in readline.__doc__:
+        readline.parse_and_bind("bind ^I rl_complete")
+    else:
+        readline.parse_and_bind("tab: complete")
+
     while True:
-        sys.stdout.write("$ ")
-        user_input = input()
+        user_input = input("$ ")
+
+        if not user_input:
+            continue
+
         if user_input == "exit":
             break
         cmd, args = split(user_input)
