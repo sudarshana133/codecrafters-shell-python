@@ -107,32 +107,21 @@ def change_dir(path):
         print(f"cd: {path}: No such file or directory")
 
 
-def get_all_directories():
-    path = os.getcwd()
+def splitter(path: str):
+    directories = path.split(":")
+    lst = []
+    for directory in directories:
+        if os.path.exists(directory):
+            dir_list = os.listdir(directory)
+            lst += dir_list
 
-    items = os.listdir(path)
-
-    directories = []
-    for item in items:
-        if os.path.isdir(item):
-            directories.append(item)
-
-    return directories
+    return lst
 
 
 def completer(text, state):
-    line = readline.get_line_buffer()
+    options = splitter(os.environ.get("PATH"))
 
-    if line.startswith("cd ") or line.startswith("cat "):
-        second_word_options = get_all_directories()
-        matches = [o for o in second_word_options if o.startswith(text)]
-        try:
-            return matches[state]
-        except IndexError:
-            return None
-
-    options = ["echo ", "exit ", "cd ", "cat "]
-    matches = [o for o in options if o.startswith(text)]
+    matches = [o + " " for o in options if o.startswith(text)]
 
     try:
         return matches[state]
