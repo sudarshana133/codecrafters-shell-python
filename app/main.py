@@ -61,8 +61,7 @@ def custom(custom_exe, args) -> bool:
             cmd_args = [custom_exe] + args[:idx]
 
             res = subprocess.run(cmd_args, stderr=subprocess.PIPE, text=True)
-            if res.stderr:
-                create_and_write(file_name, res.stderr + "\n")
+            create_and_write(file_name, res.stderr)
         else:
             subprocess.run([custom_exe] + args, text=True)
         return True
