@@ -6,58 +6,71 @@ from pathlib import Path
 import shlex
 
 
-def echo(user_input):
+def split(user_input):
     lst = shlex.split(user_input)
-    lst.pop(0)
-    if '>' in lst or '1>' in lst:
-        idx = lst.index('>') if '>' in lst else lst.index('1>')
-        file_name = lst[idx + 1]
-        dir_name = os.path.dirname(file_name)
-        if dir_name:
-            os.makedirs(dir_name, exist_ok=True)
-        with open(file_name, 'w') as file:
-            file.write(" ".join(lst[:idx]) + "\n")
-        return
-    print(" ".join(lst))
+    return lst[0], lst[1:]
 
 
-def type_cmd(user_input) -> str:
-    lst = user_input.split(" ")
-    lst.pop(0)
-    cmd = lst[0]
-    if cmd in ("echo", "type", "exit", "pwd", "cd"):
-        return f"{cmd} is a shell builtin"
-    if shutil.which(cmd):
-        return f"{cmd} is {shutil.which(cmd)}"
-    return f"{cmd}: not found"
+def create_and_write(file_name, content):
+    dir_name = os.path.dirname(file_name)
+    if dir_name:
+        os.makedirs(dir_name, exist_ok=True)
+
+    with open(file_name, 'w') as file:
+        file.write(content)
 
 
-def custom(user_input) -> bool:
-    lst = shlex.split(user_input)
-    custom_exe = lst[0]
+def echo(args):
+    if '>' in args or '1>' in args:
+        idx = args.index('>') if '>' in args else args.index('1>')
+        file_name = args[idx + 1]
+        create_and_write(file_name, " ".join(args[:idx]) + "\n")
 
+    elif '2>' in args:
+        idx = args.index('2>')
+        file_name = args[idx + 1]
+        create_and_write(file_name, "")
+        print(" ".join(args[:idx]))
+    else:
+        print(" ".join(args))
+
+
+def type_cmd(cmd_name: str) -> str:
+    if cmd_name in ("echo", "type", "exit", "pwd", "cd"):
+        return f"{cmd_name} is a shell builtin"
+
+    cmd_path = shutil.which(cmd_name)
+    if cmd_path:
+        return f"{cmd_name} is {cmd_path}"
+    return f"{cmd_name}: not found"
+
+
+def custom(custom_exe, args) -> bool:
     if shutil.which(custom_exe):
-        if '>' in lst or '1>' in lst:
-            idx = lst.index('>') if '>' in lst else lst.index('1>')
-            file_name = lst[idx + 1]
-            dir_name = os.path.dirname(file_name)
-            if dir_name:
-                os.makedirs(dir_name, exist_ok=True)
-            cmd_args = lst[:idx]
+        if '>' in args or '1>' in args:
+            idx = args.index('>') if '>' in args else args.index('1>')
+            file_name = args[idx + 1]
+            cmd_args = [custom_exe] + args[:idx]
+
             res = subprocess.run(cmd_args, stdout=subprocess.PIPE, text=True)
-            with open(file_name, 'w') as file:
-                file.write(res.stdout)
+            create_and_write(file_name, res.stdout)
+
+        elif '2>' in args:
+            idx = args.index('2>')
+            file_name = args[idx + 1]
+            cmd_args = [custom_exe] + args[:idx]
+
+            res = subprocess.run(cmd_args, stderr=subprocess.PIPE, text=True)
+            if res.stderr:
+                create_and_write(file_name, res.stderr + "\n")
         else:
-            subprocess.run(lst, text=True)
+            subprocess.run([custom_exe] + args, text=True)
         return True
 
     return False
 
 
-def change_dir(user_input):
-    lst = user_input.split()
-    path = lst[1]
-
+def change_dir(path):
     try:
         if path == "~":
             path = str(Path.home())
@@ -72,15 +85,16 @@ def main():
         user_input = input()
         if user_input == "exit":
             break
-        cmd = user_input.split(" ")[0]
+        cmd, args = split(user_input)
 
         if cmd == "echo":
-            echo(user_input)
+            echo(args)
             continue
 
         if cmd == "type":
-            output = (type_cmd(user_input))
-            print(output)
+            if args:
+                output = type_cmd(args[0])
+                print(output)
             continue
 
         if cmd == "pwd":
@@ -89,10 +103,10 @@ def main():
             continue
 
         if cmd == "cd":
-            change_dir(user_input)
+            change_dir(args[0])
             continue
 
-        is_custom = custom(user_input)
+        is_custom = custom(cmd, args)
         if is_custom:
             continue
 
