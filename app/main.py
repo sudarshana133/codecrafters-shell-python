@@ -107,8 +107,31 @@ def change_dir(path):
         print(f"cd: {path}: No such file or directory")
 
 
+def get_all_directories():
+    path = os.getcwd()
+
+    items = os.listdir(path)
+
+    directories = []
+    for item in items:
+        if os.path.isdir(item):
+            directories.append(item)
+
+    return directories
+
+
 def completer(text, state):
-    options = ["echo ", "exit "]
+    line = readline.get_line_buffer()
+
+    if line.startswith("cd ") or line.startswith("cat "):
+        second_word_options = get_all_directories()
+        matches = [o for o in second_word_options if o.startswith(text)]
+        try:
+            return matches[state]
+        except IndexError:
+            return None
+
+    options = ["echo ", "exit ", "cd ", "cat "]
     matches = [o for o in options if o.startswith(text)]
 
     try:
@@ -133,7 +156,7 @@ def main():
         if not user_input:
             continue
 
-        if user_input == "exit":
+        if user_input.strip() == "exit":
             break
         cmd, args = split(user_input)
 
