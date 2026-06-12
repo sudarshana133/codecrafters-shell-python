@@ -108,7 +108,7 @@ def change_dir(path):
 
 
 def completer(text, state):
-    options = ["echo", "exit"]
+    options = ["echo ", "exit "]
     matches = [o for o in options if o.startswith(text)]
 
     try:
