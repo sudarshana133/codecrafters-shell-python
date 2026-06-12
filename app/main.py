@@ -119,9 +119,11 @@ def splitter(path: str):
 
 
 def completer(text, state):
-    options = splitter(os.environ.get("PATH"))
+    options = splitter(os.environ.get("PATH", ""))
+    builtins = ["echo", "exit", "type", "pwd", "cd"]
+    all_options = set(options + builtins)
 
-    matches = [o + " " for o in options if o.startswith(text)]
+    matches = sorted([o + " " for o in all_options if o.startswith(text)])
 
     try:
         return matches[state]
