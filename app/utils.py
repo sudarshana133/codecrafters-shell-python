@@ -1,6 +1,7 @@
 import os
 import shlex
 from typing import Union, Iterable
+import readline
 
 
 def split(user_input):
@@ -29,12 +30,14 @@ def splitter(path: str):
 
 
 def completer(text, state):
-    options = splitter(os.environ.get("PATH", ""))
-    builtins = ["echo", "exit", "type", "pwd", "cd"]
-    all_options = set(options + builtins)
+    if readline.get_begidx() == 0:
+        options = splitter(os.environ.get("PATH", ""))
+        builtins = ["echo", "exit", "type", "pwd", "cd"]
+        all_options = set(options + builtins)
+        matches = sorted([o + " " for o in all_options if o.startswith(text)])
 
-    matches = sorted([o + " " for o in all_options if o.startswith(text)])
-
+    else:
+        matches = [f + " " for f in get_files() if f.startswith(text)]
     try:
         return matches[state]
     except IndexError:
@@ -59,3 +62,13 @@ def find_first_index(args: list, targets: Union[str, Iterable[str]]) -> int:
             return idx
 
     return -1
+
+
+def get_files() -> list[str]:
+    files = []
+    path = os.getcwd()
+
+    if os.path.exists(path):
+        files = os.listdir(path)
+
+    return files
