@@ -32,3 +32,9 @@ Note: This section is for stages 2 and beyond.
    `app/main.py`.
 1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
    output will be streamed to your terminal.
+
+To format the files use this command
+
+```sh
+$ uvx ruff format app/
+```
