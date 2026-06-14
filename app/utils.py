@@ -37,7 +37,29 @@ def completer(text, state):
         matches = sorted([o + " " for o in all_options if o.startswith(text)])
 
     else:
-        matches = [f + " " for f in get_files() if f.startswith(text)]
+        line = readline.get_line_buffer()
+        words = line.split()
+
+        if len(words) < 2:
+            matches = [f + " " for f in get_files() if f.startswith(text)]
+        else:
+            second_word = words[1]
+            dir_path = os.path.dirname(second_word)
+            prefix = os.path.basename(second_word)
+
+            path = os.getcwd() + "/" + dir_path
+
+            if os.path.isdir(path):
+                files = get_files(path)
+                matches = []
+                for f in files:
+                    if f.startswith(prefix):
+                        if os.path.isdir(path + "/" + f):
+                            matches.append(f + "/")
+                        else:
+                            matches.append(f + " ")
+            else:
+                matches = [f + " " for f in get_files() if f.startswith(text)]
     try:
         return matches[state]
     except IndexError:
@@ -64,9 +86,8 @@ def find_first_index(args: list, targets: Union[str, Iterable[str]]) -> int:
     return -1
 
 
-def get_files() -> list[str]:
+def get_files(path: str = os.getcwd()) -> list[str]:
     files = []
-    path = os.getcwd()
 
     if os.path.exists(path):
         files = os.listdir(path)
