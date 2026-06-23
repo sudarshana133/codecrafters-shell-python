@@ -30,19 +30,49 @@ def splitter(path: str):
 
 
 def completer(text, state):
-    if readline.get_begidx() == 0:
-        options = splitter(os.environ.get("PATH", ""))
-        builtins = ["echo", "exit", "type", "pwd", "cd"]
-        all_options = set(options + builtins)
-        # Return suffixes relative to the current text so behavior is consistent
-        matches = sorted(
-            [o[len(text) :] + " " for o in all_options if o.startswith(text)]
-        )
+    # state = 0 indicates start of a completion request
+    if state == 0:
+        if readline.get_begidx() == 0:
+            options = splitter(os.environ.get("PATH", ""))
+            builtins = ["echo", "exit", "type", "pwd", "cd"]
+            all_options = set(options + builtins)
+            completer.matches = sorted(
+                [o + " " for o in all_options if o.startswith(text)]
+            )
+        else:
+            # We are completing argument (a file or directory)
+            if "/" in text:
+                prefix = os.path.basename(text)
+                dir_prefix = text[: -len(prefix)] if prefix else text
+                dir_path = dir_prefix
 
-    else:
-        matches = [f + " " for f in get_files() if f.startswith(text)]
+            else:
+                prefix = text
+                dir_prefix = ""
+                dir_path = "."
+
+            resolved_dir_path = os.path.expanduser(dir_path)
+            completer.matches = []
+
+            if os.path.isdir(resolved_dir_path):
+                try:
+                    files = os.listdir(resolved_dir_path)
+                except Exception:
+                    files = []
+
+                for f in sorted(files):
+                    if f.startswith(".") and not prefix.startswith("."):
+                        continue
+                    if f.startswith(prefix):
+                        full_path = os.path.join(resolved_dir_path, f)
+
+                        if os.path.isdir(full_path):
+                            completer.matches.append(dir_prefix + f + "/")
+                        else:
+                            completer.matches.append(dir_prefix + f + " ")
+
     try:
-        return matches[state]
+        return completer.matches[state]
     except IndexError:
         return None
 
@@ -67,9 +97,16 @@ def find_first_index(args: list, targets: Union[str, Iterable[str]]) -> int:
     return -1
 
 
+<<<<<<< Updated upstream
 def get_files() -> list[str]:
     files = []
     path = os.getcwd()
+=======
+def get_files(path: Optional[str] = None) -> list[str]:
+    files = []
+    if not path:
+        path = os.getcwd()
+>>>>>>> Stashed changes
 
     if os.path.exists(path):
         files = os.listdir(path)

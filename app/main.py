@@ -1,13 +1,14 @@
 import os
 import readline
 
-from app.utils import split, completer
-from app.commands import echo, type_cmd, change_dir, custom
+from app.commands import change_dir, custom, echo, type_cmd
+from app.utils import completer, split
 
 
 def main():
     # Configure readline once before the loop starts
     readline.set_completer(completer)
+    readline.set_completer_delims(" \t\n")
 
     # Handle macOS (libedit) vs Linux (GNU readline) bindings
     if readline.__doc__ and "libedit" in readline.__doc__:
