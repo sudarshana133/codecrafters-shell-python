@@ -1,7 +1,7 @@
 import os
-import shlex
-from typing import Union, Iterable
 import readline
+import shlex
+from typing import Iterable, Union
 
 
 def split(user_input):
