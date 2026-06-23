@@ -71,10 +71,6 @@ def get_files() -> list[str]:
     files = []
     path = os.getcwd()
 
-    # Evaluate the cwd at call-time so autocompletion reflects the current directory
-    if path is None:
-        path = os.getcwd()
-
     if os.path.exists(path):
         files = os.listdir(path)
 
