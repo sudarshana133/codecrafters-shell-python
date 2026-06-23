@@ -97,16 +97,10 @@ def find_first_index(args: list, targets: Union[str, Iterable[str]]) -> int:
     return -1
 
 
-<<<<<<< Updated upstream
-def get_files() -> list[str]:
-    files = []
-    path = os.getcwd()
-=======
 def get_files(path: Optional[str] = None) -> list[str]:
     files = []
     if not path:
         path = os.getcwd()
->>>>>>> Stashed changes
 
     if os.path.exists(path):
         files = os.listdir(path)
