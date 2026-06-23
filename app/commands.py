@@ -32,7 +32,7 @@ def echo(args):
 
 
 def type_cmd(cmd_name: str) -> str:
-    if cmd_name in ("echo", "type", "exit", "pwd", "cd"):
+    if cmd_name in ("echo", "type", "exit", "pwd", "cd", "complete"):
         return f"{cmd_name} is a shell builtin"
 
     cmd_path = shutil.which(cmd_name)
