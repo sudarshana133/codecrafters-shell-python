@@ -40,33 +40,7 @@ def completer(text, state):
         )
 
     else:
-        line = readline.get_line_buffer()
-        words = line.split()
-
-        if len(words) < 2:
-            matches = [f[len(text) :] + " " for f in get_files() if f.startswith(text)]
-        else:
-            second_word = words[1]
-            dir_path = os.path.dirname(second_word)
-            prefix = os.path.basename(second_word)
-
-            # Use os.path.join so absolute paths in the second word are handled correctly
-            path = os.path.join(os.getcwd(), dir_path)
-
-            if os.path.isdir(path):
-                files = get_files(path)
-                matches = []
-                for f in files:
-                    if f.startswith(prefix):
-                        suffix = f[len(prefix) :]
-                        if os.path.isdir(path + "/" + f):
-                            matches.append(suffix + "/")
-                        else:
-                            matches.append(suffix + " ")
-            else:
-                matches = [
-                    f[len(text) :] + " " for f in get_files() if f.startswith(text)
-                ]
+        matches = [f + " " for f in get_files() if f.startswith(text)]
     try:
         return matches[state]
     except IndexError:
@@ -93,8 +67,9 @@ def find_first_index(args: list, targets: Union[str, Iterable[str]]) -> int:
     return -1
 
 
-def get_files(path: Optional[str] = None) -> list[str]:
+def get_files() -> list[str]:
     files = []
+    path = os.getcwd()
 
     # Evaluate the cwd at call-time so autocompletion reflects the current directory
     if path is None:
