@@ -1,7 +1,7 @@
 import os
 import readline
 import shlex
-from typing import Iterable, Union
+from typing import Iterable, Optional, Union
 
 
 def split(user_input):
@@ -34,32 +34,39 @@ def completer(text, state):
         options = splitter(os.environ.get("PATH", ""))
         builtins = ["echo", "exit", "type", "pwd", "cd"]
         all_options = set(options + builtins)
-        matches = sorted([o + " " for o in all_options if o.startswith(text)])
+        # Return suffixes relative to the current text so behavior is consistent
+        matches = sorted(
+            [o[len(text) :] + " " for o in all_options if o.startswith(text)]
+        )
 
     else:
         line = readline.get_line_buffer()
         words = line.split()
 
         if len(words) < 2:
-            matches = [f + " " for f in get_files() if f.startswith(text)]
+            matches = [f[len(text) :] + " " for f in get_files() if f.startswith(text)]
         else:
             second_word = words[1]
             dir_path = os.path.dirname(second_word)
             prefix = os.path.basename(second_word)
 
-            path = os.getcwd() + "/" + dir_path
+            # Use os.path.join so absolute paths in the second word are handled correctly
+            path = os.path.join(os.getcwd(), dir_path)
 
             if os.path.isdir(path):
                 files = get_files(path)
                 matches = []
                 for f in files:
                     if f.startswith(prefix):
+                        suffix = f[len(prefix) :]
                         if os.path.isdir(path + "/" + f):
-                            matches.append(f + "/")
+                            matches.append(suffix + "/")
                         else:
-                            matches.append(f + " ")
+                            matches.append(suffix + " ")
             else:
-                matches = [f + " " for f in get_files() if f.startswith(text)]
+                matches = [
+                    f[len(text) :] + " " for f in get_files() if f.startswith(text)
+                ]
     try:
         return matches[state]
     except IndexError:
@@ -86,8 +93,12 @@ def find_first_index(args: list, targets: Union[str, Iterable[str]]) -> int:
     return -1
 
 
-def get_files(path: str = os.getcwd()) -> list[str]:
+def get_files(path: Optional[str] = None) -> list[str]:
     files = []
+
+    # Evaluate the cwd at call-time so autocompletion reflects the current directory
+    if path is None:
+        path = os.getcwd()
 
     if os.path.exists(path):
         files = os.listdir(path)
