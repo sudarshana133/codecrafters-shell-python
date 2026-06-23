@@ -82,3 +82,10 @@ def change_dir(path):
         os.chdir(path)
     except:
         print(f"cd: {path}: No such file or directory")
+
+
+def complete_cmd(args: list):
+    if "-p" in args:
+        cmd = args[len(args) - 1]
+        print(f"complete: {cmd}: no completion specification")
+    pass

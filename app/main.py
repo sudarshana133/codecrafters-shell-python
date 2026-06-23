@@ -1,7 +1,7 @@
 import os
 import readline
 
-from app.commands import change_dir, custom, echo, type_cmd
+from app.commands import change_dir, complete_cmd, custom, echo, type_cmd
 from app.utils import completer, split
 
 
@@ -43,6 +43,10 @@ def main():
 
         if cmd == "cd":
             change_dir(args[0])
+            continue
+
+        if cmd == "complete":
+            complete_cmd(args)
             continue
 
         is_custom = custom(cmd, args)
