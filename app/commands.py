@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Dict, List
 
 from app.utils import create_and_write, find_first_index
 
@@ -84,8 +85,18 @@ def change_dir(path):
         print(f"cd: {path}: No such file or directory")
 
 
-def complete_cmd(args: list):
-    if "-p" in args:
-        cmd = args[len(args) - 1]
-        print(f"complete: {cmd}: no completion specification")
-    pass
+def complete_cmd(args: List[str], completer_paths: Dict):
+    if "-C" in args:
+        completer_idx = args.index("-C")
+        completer_path = args[completer_idx + 1]
+        command = args[completer_idx + 2]
+        completer_paths[command] = completer_path
+
+    elif "-p" in args:
+        cmd = args[-1].strip()
+        result = completer_paths.get(cmd)
+        if not result:
+            print(f"complete: {cmd}: no completion specification")
+            return
+
+        print(f"complete -C '{result}' {cmd}")

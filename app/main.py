@@ -16,6 +16,7 @@ def main():
     else:
         readline.parse_and_bind("tab: complete")
 
+    completer_paths = dict()
     while True:
         user_input = input("$ ")
 
@@ -46,7 +47,7 @@ def main():
             continue
 
         if cmd == "complete":
-            complete_cmd(args)
+            complete_cmd(args, completer_paths)
             continue
 
         is_custom = custom(cmd, args)
