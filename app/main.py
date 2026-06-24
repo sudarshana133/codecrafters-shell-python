@@ -6,8 +6,13 @@ from app.utils import completer, split
 
 
 def main():
+    completer_paths = dict()
     # Configure readline once before the loop starts
-    readline.set_completer(completer)
+
+    def rl_completer(text, state):
+        return completer(text, state, completer_paths)
+
+    readline.set_completer(rl_completer)
     readline.set_completer_delims(" \t\n")
 
     # Handle macOS (libedit) vs Linux (GNU readline) bindings
@@ -16,7 +21,6 @@ def main():
     else:
         readline.parse_and_bind("tab: complete")
 
-    completer_paths = dict()
     while True:
         user_input = input("$ ")
 

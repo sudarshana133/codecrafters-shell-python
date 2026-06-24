@@ -1,7 +1,8 @@
 import os
 import readline
 import shlex
-from typing import Iterable, Optional, Union
+import subprocess
+from typing import Dict, Iterable, Optional, Union
 
 
 def split(user_input):
@@ -29,7 +30,13 @@ def splitter(path: str):
     return lst
 
 
-def completer(text, state):
+def run_completer_script(path: str):
+    script_path = os.path.expanduser(path)
+    res = subprocess.run([script_path], stdout=subprocess.PIPE, text=True, check=False)
+    return [line for line in res.stdout.splitlines() if line]
+
+
+def completer(text, state, completer_paths: Dict):
     # state = 0 indicates start of a completion request
     if state == 0:
         if readline.get_begidx() == 0:
@@ -40,6 +47,16 @@ def completer(text, state):
                 [o + " " for o in all_options if o.startswith(text)]
             )
         else:
+            cmd = readline.get_line_buffer().split()[0].strip()
+            # auto completing with the script
+            res = completer_paths.get(cmd)
+            if res:
+                completer.matches = [
+                    candidate + " " for candidate in run_completer_script(res)
+                ]
+                if completer.matches:
+                    return completer.matches[state]
+
             # We are completing argument (a file or directory)
             if "/" in text:
                 prefix = os.path.basename(text)
