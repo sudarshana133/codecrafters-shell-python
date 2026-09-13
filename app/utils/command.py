@@ -1,4 +1,6 @@
+import os
 import shutil
+import subprocess
 
 
 class Commands:
@@ -14,6 +16,11 @@ class Commands:
         tmp = user_input.split()
         return tmp[0]
 
+    def is_custom(self, cmd: str) -> bool:
+        executable_path = shutil.which(cmd)
+
+        return bool(executable_path and os.access(executable_path, os.X_OK))
+
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
         print(" ".join(args))
@@ -26,6 +33,12 @@ class Commands:
             print(f"{args[0]} is {shutil.which(args[0])}")
         else:
             print(f"{args[0]}: not found")
+
+    def execute_custom_command(self, user_input: str):
+        result = subprocess.run(
+            [user_input], check=False, shell=True, capture_output=True, text=True
+        )
+        print(result.stdout)
 
 
 commands = Commands()
