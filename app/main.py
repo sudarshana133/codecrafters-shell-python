@@ -20,6 +20,10 @@ def main():
             commands.echo(user_input)
             continue
 
+        if command == "type":
+            commands.type(user_input)
+            continue
+
         print(f"{command}: command not found")
 
 
