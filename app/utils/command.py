@@ -1,3 +1,6 @@
+import shutil
+
+
 class Commands:
     def __init__(self):
         self.builtins = ["echo", "type", "exit"]
@@ -19,6 +22,8 @@ class Commands:
         args = self.get_command_args(user_input)
         if args[0] in self.builtins:
             print(f"{args[0]} is a shell builtin")
+        elif shutil.which(args[0]):
+            print(f"{args[0]} is {shutil.which(args[0])}")
         else:
             print(f"{args[0]}: not found")
 
