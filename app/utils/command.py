@@ -5,7 +5,7 @@ import subprocess
 
 class Commands:
     def __init__(self):
-        self.builtins = ["echo", "type", "exit", "pwd"]
+        self.builtins = ["echo", "type", "exit", "pwd", "cd"]
 
     def get_command_args(self, user_input: str) -> list[str]:
         tmp = user_input.split()
@@ -36,6 +36,13 @@ class Commands:
 
     def pwd(self):
         print(os.getcwd())
+
+    def change_dir(self, user_input: str):
+        args = self.get_command_args(user_input)
+        if args[0] and os.path.isdir(args[0]):
+            os.chdir(args[0])
+            return
+        print(f"cd: {args[0]}: No such file or directory")
 
     def execute_custom_command(self, user_input: str):
         result = subprocess.run(

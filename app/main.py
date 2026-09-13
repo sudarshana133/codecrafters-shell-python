@@ -28,6 +28,10 @@ def main():
             commands.pwd()
             continue
 
+        if command == "cd":
+            commands.change_dir(user_input)
+            continue
+
         if commands.is_custom(command):
             commands.execute_custom_command(user_input)
             continue
