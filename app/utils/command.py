@@ -5,7 +5,7 @@ import subprocess
 
 class Commands:
     def __init__(self):
-        self.builtins = ["echo", "type", "exit"]
+        self.builtins = ["echo", "type", "exit", "pwd"]
 
     def get_command_args(self, user_input: str) -> list[str]:
         tmp = user_input.split()
@@ -33,6 +33,9 @@ class Commands:
             print(f"{args[0]} is {shutil.which(args[0])}")
         else:
             print(f"{args[0]}: not found")
+
+    def pwd(self):
+        print(os.getcwd())
 
     def execute_custom_command(self, user_input: str):
         result = subprocess.run(

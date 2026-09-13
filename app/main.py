@@ -24,6 +24,10 @@ def main():
             commands.type(user_input)
             continue
 
+        if command == "pwd":
+            commands.pwd()
+            continue
+
         if commands.is_custom(command):
             commands.execute_custom_command(user_input)
             continue
