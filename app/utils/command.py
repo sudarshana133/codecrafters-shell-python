@@ -39,6 +39,10 @@ class Commands:
 
     def change_dir(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if args[0] == "~":
+            os.chdir(os.path.expanduser("~"))
+            return
         if args[0] and os.path.isdir(args[0]):
             os.chdir(args[0])
             return
