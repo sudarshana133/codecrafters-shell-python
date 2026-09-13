@@ -36,9 +36,13 @@ class Commands:
 
     def execute_custom_command(self, user_input: str):
         result = subprocess.run(
-            [user_input], check=False, shell=True, capture_output=True, text=True
+            user_input,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
         )
-        print(result.stdout)
+        print(result.stdout, end="")
 
 
 commands = Commands()
