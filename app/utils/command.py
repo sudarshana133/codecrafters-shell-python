@@ -7,7 +7,7 @@ class Commands:
     def __init__(self):
         self.builtins = ["echo", "type", "exit", "pwd", "cd"]
 
-    def get_command_args(self, user_input: str) -> list[str]:
+    def splitter(self, user_input: str) -> list[str]:
         args: list[str] = []
 
         tmp = ""
@@ -20,6 +20,7 @@ class Commands:
             if user_input[i] == "\\" and not is_single_quote:
                 if i < len(user_input) - 1:
                     i += 1
+                    # don't push if it's space as later space will be introduces while joining each argument
                     if user_input != " ":
                         tmp += user_input[i]
                     i += 1
@@ -65,11 +66,15 @@ class Commands:
         if tmp:
             args.append(tmp)
 
+        return args
+
+    def get_command_args(self, user_input: str) -> list[str]:
+        args = self.splitter(user_input)
         return args[1:]
 
     def get_command(self, user_input: str) -> str:
-        tmp = user_input.split()
-        return tmp[0]
+        args = self.splitter(user_input)
+        return args[0]
 
     def is_custom(self, cmd: str) -> bool:
         executable_path = shutil.which(cmd)
