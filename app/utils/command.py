@@ -12,11 +12,22 @@ class Commands:
 
         tmp = ""
         is_single_quote = False
+        is_double_quote = False
 
         for i in range(len(user_input)):
-            # toggle the is single quote
-            if user_input[i] == "'":
+            # toggle the is_double_quote
+            if user_input[i] == '"' and not is_single_quote:
+                is_double_quote = not is_double_quote
+
+            # toggle the is_single_quote
+            if user_input[i] == "'" and not is_double_quote:
                 is_single_quote = not is_single_quote
+
+            if is_double_quote:
+                # if it's inside double quote push everything to tmp
+                if user_input[i] != '"':
+                    tmp += user_input[i]
+                continue
 
             if is_single_quote:
                 # if it's inside single quote push everything to tmp
@@ -25,7 +36,7 @@ class Commands:
                 continue
 
             # if not inside single quote then don't push spaces and quotes
-            if user_input[i] != " " and user_input[i] != "'":
+            if user_input[i] not in [" ", "'", '"']:
                 tmp += user_input[i]
 
             if user_input[i] == " ":
