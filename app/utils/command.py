@@ -8,9 +8,35 @@ class Commands:
         self.builtins = ["echo", "type", "exit", "pwd", "cd"]
 
     def get_command_args(self, user_input: str) -> list[str]:
-        tmp = user_input.split()
+        args: list[str] = []
 
-        return tmp[1:]
+        tmp = ""
+        is_single_quote = False
+
+        for i in range(len(user_input)):
+            # toggle the is single quote
+            if user_input[i] == "'":
+                is_single_quote = not is_single_quote
+
+            if is_single_quote:
+                # if it's inside single quote push everything to tmp
+                if user_input[i] != "'":
+                    tmp += user_input[i]
+                continue
+
+            # if not inside single quote then don't push spaces and quotes
+            if user_input[i] != " " and user_input[i] != "'":
+                tmp += user_input[i]
+
+            if user_input[i] == " ":
+                if len(tmp) > 0:
+                    args.append(tmp)
+                tmp = ""
+
+        if tmp:
+            args.append(tmp)
+
+        return [arg.strip("'") for arg in args][1:]
 
     def get_command(self, user_input: str) -> str:
         tmp = user_input.split()
