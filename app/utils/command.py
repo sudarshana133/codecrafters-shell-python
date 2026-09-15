@@ -83,6 +83,15 @@ class Commands:
             return
         print(f"cd: {args[0]}: No such file or directory")
 
+    def complete(self, user_input: str):
+        args = self.get_command_args(user_input)
+
+        if "-p" in args:
+            # get index of -p
+            index = args.index("-p")
+            command = args[index + 1]
+            print(f"complete: {command}: no completion specification")
+
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
         args = self.get_command_args(user_input)

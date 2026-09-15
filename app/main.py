@@ -39,6 +39,10 @@ def main():
             commands.change_dir(user_input)
             continue
 
+        if command == "complete":
+            commands.complete(user_input)
+            continue
+
         if commands.is_custom(command):
             commands.execute_custom_command(user_input)
             continue
