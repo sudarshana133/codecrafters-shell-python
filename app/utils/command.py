@@ -49,7 +49,7 @@ class Commands:
         if "2>" in args:
             index = args.index("2>")
             self.redirect(args, "")
-            print("".join(args[:index]))
+            print(" ".join(args[:index]))
             return
 
         print(" ".join(args))
