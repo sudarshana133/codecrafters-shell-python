@@ -36,18 +36,39 @@ class AutoCompleter:
 
         if readline.get_begidx() == 0:
             matches = [c + " " for c in all_options if c.startswith(text)]
+
         elif cmd in commands.completers:
             if cmd in commands.completers:
+                # find the argv[1], argv[2], argv[3]
+                line_buffer = readline.get_line_buffer().split()
+                argv1 = line_buffer[0]
+
+                # For argv2 (word being completed):
+                # If length is >= 3 (e.g. ['git', 'remote', 'set']), it's index 2 ('set')
+                # If length is 2 (e.g. ['git', 'set']), it's index 1 ('set')
+                argv2 = (
+                    line_buffer[2]
+                    if len(line_buffer) >= 3
+                    else (line_buffer[1] if len(line_buffer) >= 2 else "")
+                )
+
+                # For argv3 (word before the one being completed):
+                # If length is >= 3 (e.g. ['git', 'remote', 'set']), preceding word is index 1 ('remote')
+                # If length is < 3 (e.g. ['git', 'set']), there is no preceding word, so ""
+                argv3 = line_buffer[1] if len(line_buffer) >= 3 else ""
+
+                cmd_args = [argv1, argv2, argv3]
                 result = subprocess.run(
-                    commands.completers[cmd],
+                    [commands.completers[cmd], *cmd_args],
                     capture_output=True,
                     check=False,
                     text=True,
-                    shell=True,
+                    shell=False,
                 )
                 if result.returncode == 0:
                     results = result.stdout.splitlines()
                     matches = [c + " " for c in results if c.startswith(text)]
+
         else:
             head, tail = os.path.split(text)
             items = file_handler.get_files_and_folders(head)
