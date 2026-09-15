@@ -8,7 +8,7 @@ from app.utils.helpers import helpers
 
 class Commands:
     def __init__(self):
-        self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete"]
+        self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete", "jobs"]
         # complete command registrations -> Store {completer_command, completer_path}
         self.completers = {}
 
