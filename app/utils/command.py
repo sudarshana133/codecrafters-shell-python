@@ -43,7 +43,7 @@ class Commands:
             else:
                 index = args.index("1>")
 
-            self.redirect(args, " ".join(args[:index]))
+            self.redirect(args, " ".join(args[:index]) + "\n")
             return
 
         print(" ".join(args))
