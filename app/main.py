@@ -1,17 +1,19 @@
 import readline
-import sys
 
-from auto_completer import auto_completer
-
+from app.utils.auto_completer import auto_completer
 from app.utils.command import commands
 
 
 def main():
     readline.set_completer(auto_completer.completer)
-    readline.parse_and_bind("tab: complete")
+
+    if readline.__doc__ and "libedit" in readline.__doc__:
+        readline.parse_and_bind("bind ^I rl_complete")
+    else:
+        readline.parse_and_bind("tab: complete")
+
     while True:
-        sys.stdout.write("$ ")
-        user_input = input()
+        user_input = input("$ ")
 
         user_command = user_input.strip()
 

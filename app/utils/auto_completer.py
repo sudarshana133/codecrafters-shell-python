@@ -9,7 +9,7 @@ class AutoCompleter:
         """
         matches = []
         if state == 0:
-            matches = [c for c in self.commands if c.startswith(text)]
+            matches = [c + " " for c in self.commands if c.startswith(text)]
 
         try:
             return matches[state]
