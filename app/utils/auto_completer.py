@@ -58,12 +58,16 @@ class AutoCompleter:
                 argv3 = line_buffer[1] if len(line_buffer) >= 3 else ""
 
                 cmd_args = [argv1, argv2, argv3]
+
+                env_vars = {"COMP_LINE": line_buffer, "COMP_POINT": len(line_buffer)}
+
                 result = subprocess.run(
                     [commands.completers[cmd], *cmd_args],
                     capture_output=True,
                     check=False,
                     text=True,
                     shell=False,
+                    env=env_vars,
                 )
                 if result.returncode == 0:
                     results = result.stdout.splitlines()
