@@ -62,7 +62,7 @@ class AutoCompleter:
 
                 env_vars = {
                     "COMP_LINE": raw_line,
-                    "COMP_POINT": len(raw_line),
+                    "COMP_POINT": str(len(raw_line)),
                 }
 
                 result = subprocess.run(
