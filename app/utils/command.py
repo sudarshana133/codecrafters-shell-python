@@ -36,16 +36,20 @@ class Commands:
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
 
-        if ">" in args or "1>" in args or ">>" in args:
+        if ">" in args or "1>" in args or ">>" in args or "1>>" in args:
             # get index of > or 1>
             if ">" in args:
                 index = args.index(">")
             elif "1>" in args:
                 index = args.index("1>")
-            else:
+            elif ">>" in args:
                 index = args.index(">>")
+            else:
+                index = args.index("1>>")
 
-            self.redirect(args, " ".join(args[:index]) + "\n", ">>" in args)
+            self.redirect(
+                args, " ".join(args[:index]) + "\n", ">>" in args or "1>>" in args
+            )
             return
 
         if "2>" in args:
@@ -85,7 +89,7 @@ class Commands:
 
         index = None
 
-        if ">" in args or "1>" in args or "2>" in args or ">>" in args:
+        if ">" in args or "1>" in args or "2>" in args or ">>" in args or "1>>" in args:
             # get index of > or 1>
             if ">" in args:
                 index = args.index(">")
@@ -93,8 +97,10 @@ class Commands:
                 index = args.index("1>")
             elif "2>" in args:
                 index = args.index("2>")
-            else:
+            elif ">>" in args:
                 index = args.index(">>")
+            elif "1>>" in args:
+                index = args.index("1>>")
 
         cmd_args = args[:index] if index is not None else args
         result = subprocess.run(
@@ -114,14 +120,14 @@ class Commands:
             )
             return
 
-        if ">" in args or "1>" in args or ">>" in args:
+        if ">" in args or "1>" in args or ">>" in args or "1>>" in args:
             if result.stderr:
                 print(result.stderr, end="")
 
             self.redirect(
                 args,
                 output=result.stdout if result.stdout is not None else "",
-                append=">>" in args,
+                append=">>" in args or "1>>" in args,
             )
             return
 
