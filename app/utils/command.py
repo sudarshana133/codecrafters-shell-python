@@ -113,6 +113,9 @@ class Commands:
             if command in self.completers:
                 del self.completers[command]
 
+    def jobs(self, user_input: str):
+        pass
+
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
         args = self.get_command_args(user_input)
