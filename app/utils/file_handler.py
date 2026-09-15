@@ -7,7 +7,7 @@ class FileHandler:
 
     # fetch file path from the arguments
     def get_file_path(self, args: list[str]) -> str | None:
-        characters = (">", "1>", "2>", ">>", "1>>")
+        characters = (">", "1>", "2>", ">>", "1>>", "2>>")
 
         for char in characters:
             if char in args:

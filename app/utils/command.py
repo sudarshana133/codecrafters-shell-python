@@ -52,9 +52,9 @@ class Commands:
             )
             return
 
-        if "2>" in args:
-            index = args.index("2>")
-            self.redirect(args, "")
+        if "2>" in args or "2>>" in args:
+            index = args.index("2>") if "2>" in args else args.index("2>>")
+            self.redirect(args, "", "2>>" in args)
             print(" ".join(args[:index]))
             return
 
@@ -89,7 +89,14 @@ class Commands:
 
         index = None
 
-        if ">" in args or "1>" in args or "2>" in args or ">>" in args or "1>>" in args:
+        if (
+            ">" in args
+            or "1>" in args
+            or "2>" in args
+            or ">>" in args
+            or "1>>" in args
+            or "2>>" in args
+        ):
             # get index of > or 1>
             if ">" in args:
                 index = args.index(">")
@@ -101,6 +108,8 @@ class Commands:
                 index = args.index(">>")
             elif "1>>" in args:
                 index = args.index("1>>")
+            elif "2>>" in args:
+                index = args.index("2>>")
 
         cmd_args = args[:index] if index is not None else args
         result = subprocess.run(
@@ -111,12 +120,14 @@ class Commands:
             capture_output=True,
         )
 
-        if "2>" in args:
+        if "2>" in args or "2>>" in args:
             if result.stdout:
                 print(result.stdout, end="")
 
             self.redirect(
-                args, output=result.stderr if result.stderr is not None else ""
+                args,
+                output=result.stderr if result.stderr is not None else "",
+                append="2>>" in args,
             )
             return
 
