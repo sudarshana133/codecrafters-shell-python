@@ -9,6 +9,8 @@ from app.utils.helpers import helpers
 class Commands:
     def __init__(self):
         self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete"]
+        # complete command registrations -> Store {completer_command, completer_path}
+        self.complete_registrations = {}
 
     def get_command_args(self, user_input: str) -> list[str]:
         args = helpers.splitter(user_input)
@@ -90,7 +92,18 @@ class Commands:
             # get index of -p
             index = args.index("-p")
             command = args[index + 1]
+
+            if self.complete_registrations.get(command):
+                print(f"complete -C {self.complete_registrations[command]} {command}")
+                return
             print(f"complete: {command}: no completion specification")
+
+        elif "-C" in args:
+            # get index of -C
+            index = args.index("-C")
+            completer_path = args[index + 1]
+            completer_command = args[index + 2]
+            self.complete_registrations[completer_command] = completer_path
 
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
