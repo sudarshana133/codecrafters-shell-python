@@ -11,6 +11,8 @@ class Commands:
         self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete", "jobs"]
         # complete command registrations -> Store {completer_command, completer_path}
         self.completers = {}
+        # to track jobs
+        self.job_num = 1
 
     def get_command_args(self, user_input: str) -> list[str]:
         args = helpers.splitter(user_input)
@@ -35,8 +37,23 @@ class Commands:
         else:
             print(output)
 
+    # handle background jobs
+    def run_in_background(self, cmd: str, args: list[str]):
+        # remove the & first
+        args.remove("&")
+        process = subprocess.Popen(
+            [cmd] + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        # print [job_number] PID
+        print(f"[{self.job_num}] {process.pid}")
+        self.job_num += 1
+
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if "&" in args:
+            self.run_in_background("echo", args)
+            return
 
         if ">" in args or "1>" in args or ">>" in args or "1>>" in args:
             # get index of > or 1>
@@ -64,6 +81,11 @@ class Commands:
 
     def type(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if "&" in args:
+            self.run_in_background("type", args)
+            return
+
         if args[0] in self.builtins:
             print(f"{args[0]} is a shell builtin")
         elif shutil.which(args[0]):
@@ -77,6 +99,10 @@ class Commands:
     def change_dir(self, user_input: str):
         args = self.get_command_args(user_input)
 
+        if "&" in args:
+            self.run_in_background("cd", args)
+            return
+
         if args[0] == "~":
             os.chdir(os.path.expanduser("~"))
             return
@@ -87,6 +113,10 @@ class Commands:
 
     def complete(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if "&" in args:
+            self.run_in_background("complete", args)
+            return
 
         if "-p" in args:
             # get index of -p
@@ -119,6 +149,10 @@ class Commands:
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
         args = self.get_command_args(user_input)
+
+        if "&" in args:
+            self.run_in_background(command, args)
+            return
 
         index = None
 
