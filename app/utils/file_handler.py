@@ -23,5 +23,13 @@ class FileHandler:
         with open(file_path, "w" if not append else "a") as file:
             file.write(content)
 
+    def get_files(self, path) -> list[str]:
+        """
+        Return all the files present in path
+        """
+        files = os.listdir(path)
+        files = [f for f in files if os.path.isfile(f)]
+        return files
+
 
 file_handler = FileHandler()

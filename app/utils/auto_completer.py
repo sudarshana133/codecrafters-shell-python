@@ -1,4 +1,7 @@
 import os
+import readline
+
+from app.utils.file_handler import file_handler
 
 
 class AutoCompleter:
@@ -24,7 +27,13 @@ class AutoCompleter:
 
         executables = self.get_executables()
         all_options = set(self.builtins + executables)
-        matches = [c + " " for c in all_options if c.startswith(text)]
+
+        matches = []
+        if readline.get_begidx() == 0:
+            matches = [c + " " for c in all_options if c.startswith(text)]
+        else:
+            files = file_handler.get_files(os.getcwd())
+            matches = [f + " " for f in files if f.startswith(text)]
 
         try:
             return matches[state]
