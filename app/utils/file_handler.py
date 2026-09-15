@@ -7,7 +7,7 @@ class FileHandler:
 
     # fetch file path from the arguments
     def get_file_path(self, args: list[str]) -> str | None:
-        characters = (">", "1>")
+        characters = (">", "1>", "2>")
 
         for char in characters:
             if char in args:
@@ -17,7 +17,8 @@ class FileHandler:
     def write_to_file(self, file_path: str, content: str):
         # Create the required directory if required
         folder = os.path.dirname(file_path)
-        os.makedirs(folder, exist_ok=True)
+        if folder:
+            os.makedirs(folder, exist_ok=True)
 
         with open(file_path, "w") as file:
             file.write(content)

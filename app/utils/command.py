@@ -46,6 +46,12 @@ class Commands:
             self.redirect(args, " ".join(args[:index]) + "\n")
             return
 
+        if "2>" in args:
+            index = args.index("2>")
+            self.redirect(args, "")
+            print("".join(args[:index]))
+            return
+
         print(" ".join(args))
 
     def type(self, user_input: str):
@@ -77,12 +83,14 @@ class Commands:
 
         index = None
 
-        if ">" in args or "1>" in args:
+        if ">" in args or "1>" in args or "2>" in args:
             # get index of > or 1>
             if ">" in args:
                 index = args.index(">")
-            else:
+            elif "1>" in args:
                 index = args.index("1>")
+            else:
+                index = args.index("2>")
 
         cmd_args = args[:index] if index is not None else args
         result = subprocess.run(
@@ -92,6 +100,15 @@ class Commands:
             text=True,
             capture_output=True,
         )
+
+        if "2>" in args:
+            if result.stdout:
+                print(result.stdout, end="")
+
+            self.redirect(
+                args, output=result.stderr if result.stderr is not None else ""
+            )
+            return
 
         if ">" in args or "1>" in args:
             if result.stderr:
