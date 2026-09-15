@@ -94,7 +94,7 @@ class Commands:
             command = args[index + 1]
 
             if self.complete_registrations.get(command):
-                print(f"complete -C {self.complete_registrations[command]} {command}")
+                print(f"complete -C '{self.complete_registrations[command]}' {command}")
                 return
             print(f"complete: {command}: no completion specification")
 
