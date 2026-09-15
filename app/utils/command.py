@@ -8,7 +8,7 @@ from app.utils.helpers import helpers
 
 class Commands:
     def __init__(self):
-        self.builtins = ["echo", "type", "exit", "pwd", "cd"]
+        self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete"]
 
     def get_command_args(self, user_input: str) -> list[str]:
         args = helpers.splitter(user_input)
