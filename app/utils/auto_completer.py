@@ -32,8 +32,16 @@ class AutoCompleter:
         if readline.get_begidx() == 0:
             matches = [c + " " for c in all_options if c.startswith(text)]
         else:
-            files = file_handler.get_files(os.getcwd())
-            matches = [f + " " for f in files if f.startswith(text)]
+            head, tail = os.path.split(text)
+            items = file_handler.get_files_and_folders(head)
+
+            for item in items:
+                if item.startswith(tail):
+                    full_path = os.path.join(head, item)
+                    if os.path.isdir(full_path):
+                        matches.append(full_path + "/")
+                    else:
+                        matches.append(full_path + " ")
 
         try:
             return matches[state]

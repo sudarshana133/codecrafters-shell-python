@@ -31,5 +31,14 @@ class FileHandler:
         files = [f for f in files if os.path.isfile(f)]
         return files
 
+    def get_files_and_folders(self, path: str | None) -> list[str]:
+        """
+        Return all the entries from the folder
+        """
+        if not path:
+            path = os.getcwd()
+        items = os.listdir(path)
+        return items
+
 
 file_handler = FileHandler()
