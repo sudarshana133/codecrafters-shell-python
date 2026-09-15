@@ -40,7 +40,8 @@ class AutoCompleter:
         elif cmd in commands.completers:
             if cmd in commands.completers:
                 # find the argv[1], argv[2], argv[3]
-                line_buffer = readline.get_line_buffer().split()
+                raw_line = readline.get_line_buffer()
+                line_buffer = raw_line.split()
                 argv1 = line_buffer[0]
 
                 # For argv2 (word being completed):
@@ -59,7 +60,10 @@ class AutoCompleter:
 
                 cmd_args = [argv1, argv2, argv3]
 
-                env_vars = {"COMP_LINE": line_buffer, "COMP_POINT": len(line_buffer)}
+                env_vars = {
+                    "COMP_LINE": raw_line,
+                    "COMP_POINT": len(line_buffer),
+                }
 
                 result = subprocess.run(
                     [commands.completers[cmd], *cmd_args],
