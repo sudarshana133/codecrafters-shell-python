@@ -43,20 +43,8 @@ class AutoCompleter:
                 raw_line = readline.get_line_buffer()
                 line_buffer = raw_line.split()
                 argv1 = line_buffer[0]
-
-                # For argv2 (word being completed):
-                # If length is >= 3 (e.g. ['git', 'remote', 'set']), it's index 2 ('set')
-                # If length is 2 (e.g. ['git', 'set']), it's index 1 ('set')
-                argv2 = (
-                    line_buffer[2]
-                    if len(line_buffer) >= 3
-                    else (line_buffer[1] if len(line_buffer) >= 2 else "")
-                )
-
-                # For argv3 (word before the one being completed):
-                # If length is >= 3 (e.g. ['git', 'remote', 'set']), preceding word is index 1 ('remote')
-                # If length is < 3 (e.g. ['git', 'set']), there is no preceding word, so ""
-                argv3 = line_buffer[1] if len(line_buffer) >= 3 else ""
+                argv2 = line_buffer[-1]
+                argv3 = line_buffer[-2] if len(line_buffer) > 1 else ""
 
                 cmd_args = [argv1, argv2, argv3]
 
