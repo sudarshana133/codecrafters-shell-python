@@ -2,78 +2,20 @@ import os
 import shutil
 import subprocess
 
+from app.utils.file_handler import file_handler
+from app.utils.helpers import helpers
+
 
 class Commands:
     def __init__(self):
         self.builtins = ["echo", "type", "exit", "pwd", "cd"]
 
-    def splitter(self, user_input: str) -> list[str]:
-        args: list[str] = []
-
-        tmp = ""
-        is_single_quote = False
-        is_double_quote = False
-
-        i = 0
-        while i < len(user_input):
-            # backslash char removes next char's special meaning
-            if user_input[i] == "\\" and not is_single_quote:
-                if i < len(user_input) - 1:
-                    i += 1
-                    # don't push if it's space as later space will be introduces while joining each argument
-                    if user_input != " ":
-                        tmp += user_input[i]
-                    i += 1
-                continue
-
-            # toggle the is_double_quote
-            if user_input[i] == '"' and not is_single_quote:
-                is_double_quote = not is_double_quote
-                i += 1
-                continue
-
-            # toggle the is_single_quote
-            if user_input[i] == "'" and not is_double_quote:
-                is_single_quote = not is_single_quote
-                i += 1
-                continue
-
-            if is_double_quote:
-                # if it's inside double quote push everything to tmp
-                if user_input[i] != '"':
-                    tmp += user_input[i]
-                i += 1
-                continue
-
-            if is_single_quote:
-                # if it's inside single quote push everything to tmp
-                if user_input[i] != "'":
-                    tmp += user_input[i]
-                i += 1
-                continue
-
-            # if not inside single quote then don't push spaces and quotes
-            if user_input[i] not in [" ", "'", '"', "\\"]:
-                tmp += user_input[i]
-
-            if user_input[i] == " ":
-                if len(tmp) > 0:
-                    args.append(tmp)
-                tmp = ""
-
-            i += 1
-
-        if tmp:
-            args.append(tmp)
-
-        return args
-
     def get_command_args(self, user_input: str) -> list[str]:
-        args = self.splitter(user_input)
+        args = helpers.splitter(user_input)
         return args[1:]
 
     def get_command(self, user_input: str) -> str:
-        args = self.splitter(user_input)
+        args = helpers.splitter(user_input)
         return args[0]
 
     def is_custom(self, cmd: str) -> bool:
@@ -81,8 +23,29 @@ class Commands:
 
         return bool(executable_path and os.access(executable_path, os.X_OK))
 
+    # Redirect standard output to a file
+    def redirect(self, args, output: str):
+        file_path = file_handler.get_file_path(args)
+
+        if file_path:
+            file_handler.write_to_file(file_path, output)
+
+        else:
+            print(output)
+
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if ">" in args or "1>" in args:
+            # get index of > or 1>
+            if ">" in args:
+                index = args.index(">")
+            else:
+                index = args.index("1>")
+
+            self.redirect(args, " ".join(args[:index]))
+            return
+
         print(" ".join(args))
 
     def type(self, user_input: str):
@@ -109,14 +72,41 @@ class Commands:
         print(f"cd: {args[0]}: No such file or directory")
 
     def execute_custom_command(self, user_input: str):
+        command = self.get_command(user_input)
+        args = self.get_command_args(user_input)
+
+        index = None
+
+        if ">" in args or "1>" in args:
+            # get index of > or 1>
+            if ">" in args:
+                index = args.index(">")
+            else:
+                index = args.index("1>")
+
+        cmd_args = args[:index] if index is not None else args
         result = subprocess.run(
-            user_input,
+            [command, *cmd_args],
             check=False,
-            shell=True,
-            capture_output=True,
+            shell=False,
             text=True,
+            capture_output=True,
         )
-        print(result.stdout, end="")
+
+        if ">" in args or "1>" in args:
+            if result.stderr:
+                print(result.stderr, end="")
+
+            self.redirect(
+                args, output=result.stdout if result.stdout is not None else ""
+            )
+            return
+
+        if result.stdout:
+            print(result.stdout, end="")
+
+        if result.stderr:
+            print(result.stderr, end="")
 
 
 commands = Commands()
