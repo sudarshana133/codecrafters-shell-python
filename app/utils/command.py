@@ -85,14 +85,16 @@ class Commands:
 
         index = None
 
-        if ">" in args or "1>" in args or "2>" in args:
+        if ">" in args or "1>" in args or "2>" in args or ">>" in args:
             # get index of > or 1>
             if ">" in args:
                 index = args.index(">")
             elif "1>" in args:
                 index = args.index("1>")
-            else:
+            elif "2>" in args:
                 index = args.index("2>")
+            else:
+                index = args.index(">>")
 
         cmd_args = args[:index] if index is not None else args
         result = subprocess.run(
@@ -112,12 +114,14 @@ class Commands:
             )
             return
 
-        if ">" in args or "1>" in args:
+        if ">" in args or "1>" in args or ">>" in args:
             if result.stderr:
                 print(result.stderr, end="")
 
             self.redirect(
-                args, output=result.stdout if result.stdout is not None else ""
+                args,
+                output=result.stdout if result.stdout is not None else "",
+                append=">>" in args,
             )
             return
 
