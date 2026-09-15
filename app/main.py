@@ -1,10 +1,14 @@
+import readline
 import sys
+
+from auto_completer import auto_completer
 
 from app.utils.command import commands
 
 
 def main():
-
+    readline.set_completer(auto_completer.completer)
+    readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
         user_input = input()
