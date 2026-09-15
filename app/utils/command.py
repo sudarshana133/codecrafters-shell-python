@@ -24,11 +24,11 @@ class Commands:
         return bool(executable_path and os.access(executable_path, os.X_OK))
 
     # Redirect standard output to a file
-    def redirect(self, args, output: str):
+    def redirect(self, args, output: str, append: bool = False):
         file_path = file_handler.get_file_path(args)
 
         if file_path:
-            file_handler.write_to_file(file_path, output)
+            file_handler.write_to_file(file_path, output, append)
 
         else:
             print(output)
@@ -36,14 +36,16 @@ class Commands:
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
 
-        if ">" in args or "1>" in args:
+        if ">" in args or "1>" in args or ">>" in args:
             # get index of > or 1>
             if ">" in args:
                 index = args.index(">")
-            else:
+            elif "1>" in args:
                 index = args.index("1>")
+            else:
+                index = args.index(">>")
 
-            self.redirect(args, " ".join(args[:index]) + "\n")
+            self.redirect(args, " ".join(args[:index]) + "\n", ">>" in args)
             return
 
         if "2>" in args:
