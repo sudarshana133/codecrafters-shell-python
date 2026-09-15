@@ -5,6 +5,7 @@ from app.utils.command import commands
 
 
 def main():
+    readline.set_completer_delims(" \t\n")
     readline.set_completer(auto_completer.completer)
 
     if readline.__doc__ and "libedit" in readline.__doc__:
