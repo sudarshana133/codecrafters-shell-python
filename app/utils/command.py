@@ -2,7 +2,6 @@ import os
 import shutil
 import subprocess
 
-from app.utils import jobs_command
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
 from app.utils.jobs_command import jobs
@@ -53,12 +52,12 @@ class Commands:
         left, right = args[:index], args[index + 1 :]
 
         process1 = subprocess.Popen([cmd, *left], stdout=subprocess.PIPE)
-        process2 = subprocess.Popen(
-            [*right], stdin=process1.stdout, stdout=subprocess.PIPE
-        )
+        process2 = subprocess.Popen([*right], stdin=process1.stdout)
 
-        stdout, _ = process2.communicate()
-        print(stdout.decode(), end="")
+        if process1.stdout is not None:
+            process1.stdout.close()
+
+        process2.wait()
 
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
