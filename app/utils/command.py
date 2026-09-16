@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
@@ -41,10 +42,8 @@ class Commands:
     def run_in_background(self, cmd: str, args: list[str]):
         # remove the & first
         args.remove("&")
-        process = subprocess.Popen(
-            [cmd] + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        # print [job_number] PID
+        process = subprocess.Popen(cmd + " " + " ".join(args), shell=True)
+
         print(f"[{self.job_num}] {process.pid}")
         self.job_num += 1
 
