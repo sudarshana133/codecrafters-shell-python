@@ -17,10 +17,15 @@ class Jobs:
         return marker
 
     def get_job_status(self, pid: int):
-        process = psutil.Process(pid)
-        if process.status() == psutil.STATUS_RUNNING:
-            return "Running"
-        else:
+        try:
+            process = psutil.Process(pid)
+            if process.is_running() and process.status() not in (
+                psutil.STATUS_ZOMBIE,
+                psutil.STATUS_DEAD,
+            ):
+                return "Running"
+            return "Done"
+        except psutil.NoSuchProcess:
             return "Done"
 
 
