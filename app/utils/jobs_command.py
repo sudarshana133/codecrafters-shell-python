@@ -2,8 +2,14 @@ import psutil
 
 
 class Jobs:
-    def __call__(self):
-        pass
+    def __init__(self):
+        # to track job number
+        self.__job_num = 1
+        """
+         To track the jobs -> tracker will follow this format
+         job_num -> (pid, status, user_input)
+        """
+        self.__jobs: dict[int, tuple[int, str, str]] = {}
 
     def get_maximum_key(self, jobs: dict[int, tuple[int, str, str]]) -> int:
         maxi = 0
@@ -23,10 +29,10 @@ class Jobs:
                 second_largest = key
         return second_largest
 
-    def get_marker(self, job_num, jobs: dict[int, tuple[int, str, str]]) -> str:
+    def get_marker(self, job_num) -> str:
         marker = ""
-        largest = self.get_maximum_key(jobs)
-        second_largest = self.get_second_maximum_key(jobs)
+        largest = self.get_maximum_key(self.__jobs)
+        second_largest = self.get_second_maximum_key(self.__jobs)
 
         if job_num == largest:
             marker = "+"
@@ -48,6 +54,38 @@ class Jobs:
             return "Done"
         except psutil.NoSuchProcess:
             return "Done"
+
+    def get_jobs(self) -> dict[int, tuple[int, str, str]]:
+        return self.__jobs
+
+    def add_job(self, pid: int, status: str, user_input: str) -> int:
+        assigned_num = self.__job_num
+        self.__jobs[self.__job_num] = (pid, status, user_input)
+        self.__job_num += 1
+        return assigned_num
+
+    def delete_job(self, job_num: int):
+        if job_num in self.__jobs:
+            del self.__jobs[job_num]
+
+    def clean_complete_jobs(self, is_background: bool = False):
+        for job_num, val in list(self.__jobs.items()):
+            pid, _, command = val
+
+            job_status = jobs.get_job_status(pid)
+            marker = self.get_marker(job_num)
+
+            if job_status == "Done":
+                # remove the trailing & from command
+                command = command.rstrip("&")
+
+            if not is_background:
+                print(f"[{job_num}]{marker}  {job_status:<24}{command}")
+
+            if job_status == "Done":
+                if is_background:
+                    print(f"[{job_num}]{marker}  {job_status:<24}{command}")
+                del self.__jobs[job_num]
 
 
 jobs = Jobs()

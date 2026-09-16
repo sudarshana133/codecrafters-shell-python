@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 
+from app.utils import jobs_command
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
 from app.utils.jobs_command import jobs
@@ -12,13 +13,6 @@ class Commands:
         self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete", "jobs"]
         # complete command registrations -> Store {completer_command, completer_path}
         self.completers = {}
-        # to track job number
-        self.job_num = 1
-        """
-         To track the jobs -> tracker will follow this format
-         job_num -> (pid, status, user_input)
-        """
-        self.jobs: dict[int, tuple[int, str, str]] = {}
 
     def get_command_args(self, user_input: str) -> list[str]:
         args = helpers.splitter(user_input)
@@ -49,9 +43,8 @@ class Commands:
         args.remove("&")
         process = subprocess.Popen(cmd + " " + " ".join(args), shell=True)
 
-        self.jobs[self.job_num] = (process.pid, "Running", user_input)
-        print(f"[{self.job_num}] {process.pid}")
-        self.job_num += 1
+        job_num = jobs.add_job(process.pid, "Running", user_input)
+        print(f"[{job_num}] {process.pid}")
 
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
@@ -149,19 +142,7 @@ class Commands:
                 del self.completers[command]
 
     def jobs_command(self, user_input: str):
-        for job_num in list(self.jobs):
-            pid, _, command = self.jobs[job_num]
-            marker = jobs.get_marker(job_num, self.jobs)
-            job_status = jobs.get_job_status(pid)
-
-            if job_status == "Done":
-                # remove the trailing & from command
-                command = command.rstrip("&")
-
-            print(f"[{job_num}]{marker}  {job_status:<24}{command}")
-
-            if job_status == "Done":
-                del self.jobs[job_num]
+        jobs.clean_complete_jobs()
 
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)

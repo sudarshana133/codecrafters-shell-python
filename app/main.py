@@ -2,6 +2,7 @@ import readline
 
 from app.utils.auto_completer import auto_completer
 from app.utils.command import commands
+from app.utils.jobs_command import jobs
 
 
 def main():
@@ -14,6 +15,7 @@ def main():
         readline.parse_and_bind("tab: complete")
 
     while True:
+        jobs.clean_complete_jobs(is_background=True)
         user_input = input("$ ")
 
         user_command = user_input.strip()
