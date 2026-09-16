@@ -154,6 +154,10 @@ class Commands:
             marker = jobs.get_marker(job_num, self.job_num)
             job_status = jobs.get_job_status(pid)
 
+            if job_status == "Done":
+                # remove the trailing & from command
+                command = command.rstrip("&")
+
             print(f"[{job_num}]{marker}  {job_status:<24}{command}")
 
             if job_status == "Done":
