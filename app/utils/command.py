@@ -151,7 +151,7 @@ class Commands:
     def jobs_command(self, user_input: str):
         for job_num in list(self.jobs):
             pid, _, command = self.jobs[job_num]
-            marker = jobs.get_marker(job_num, self.job_num)
+            marker = jobs.get_marker(job_num, self.jobs)
             job_status = jobs.get_job_status(pid)
 
             if job_status == "Done":
