@@ -3,25 +3,23 @@ import psutil
 
 class Jobs:
     def __init__(self):
-        # to track job number
-        self.__job_num = 1
         """
-         To track the jobs -> tracker will follow this format
-         job_num -> (pid, status, user_input)
+        To track the jobs -> tracker will follow this format
+        job_num -> (pid, status, user_input)
         """
         self.__jobs: dict[int, tuple[int, str, str]] = {}
 
-    def get_maximum_key(self, jobs: dict[int, tuple[int, str, str]]) -> int:
+    def get_maximum_key(self) -> int:
         maxi = 0
-        for key in jobs:
+        for key in self.__jobs:
             maxi = max(maxi, key)
         return maxi
 
-    def get_second_maximum_key(self, jobs: dict[int, tuple[int, str, str]]) -> int:
+    def get_second_maximum_key(self) -> int:
         largest = -1
         second_largest = -1
 
-        for key in jobs:
+        for key in self.__jobs:
             if key > largest:
                 second_largest = largest
                 largest = key
@@ -31,8 +29,8 @@ class Jobs:
 
     def get_marker(self, job_num) -> str:
         marker = ""
-        largest = self.get_maximum_key(self.__jobs)
-        second_largest = self.get_second_maximum_key(self.__jobs)
+        largest = self.get_maximum_key()
+        second_largest = self.get_second_maximum_key()
 
         if job_num == largest:
             marker = "+"
@@ -59,9 +57,12 @@ class Jobs:
         return self.__jobs
 
     def add_job(self, pid: int, status: str, user_input: str) -> int:
-        assigned_num = self.__job_num
-        self.__jobs[self.__job_num] = (pid, status, user_input)
-        self.__job_num += 1
+        if len(self.__jobs) == 0:
+            assigned_num = 1
+        else:
+            assigned_num = self.get_maximum_key() + 1
+
+        self.__jobs[assigned_num] = (pid, status, user_input)
         return assigned_num
 
     def delete_job(self, job_num: int):
