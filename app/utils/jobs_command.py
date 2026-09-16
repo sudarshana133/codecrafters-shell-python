@@ -9,13 +9,7 @@ class Jobs:
         """
         self.__jobs: dict[int, tuple[int, str, str]] = {}
 
-    def get_maximum_key(self) -> int:
-        maxi = 0
-        for key in self.__jobs:
-            maxi = max(maxi, key)
-        return maxi
-
-    def get_second_maximum_key(self) -> int:
+    def get_largest_and_second_largest(self) -> tuple[int, int]:
         largest = -1
         second_largest = -1
 
@@ -25,12 +19,11 @@ class Jobs:
                 largest = key
             elif key > second_largest and key < largest:
                 second_largest = key
-        return second_largest
+        return (largest, second_largest)
 
     def get_marker(self, job_num) -> str:
         marker = ""
-        largest = self.get_maximum_key()
-        second_largest = self.get_second_maximum_key()
+        largest, second_largest = self.get_largest_and_second_largest()
 
         if job_num == largest:
             marker = "+"
@@ -60,7 +53,7 @@ class Jobs:
         if len(self.__jobs) == 0:
             assigned_num = 1
         else:
-            assigned_num = self.get_maximum_key() + 1
+            assigned_num = self.get_largest_and_second_largest()[0] + 1
 
         self.__jobs[assigned_num] = (pid, status, user_input)
         return assigned_num

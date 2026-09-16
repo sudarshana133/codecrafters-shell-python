@@ -46,8 +46,26 @@ class Commands:
         job_num = jobs.add_job(process.pid, "Running", user_input)
         print(f"[{job_num}] {process.pid}")
 
+    # handle pipelines
+    def run_in_pipeline(self, cmd: str, args: list[str]):
+        # get index of |
+        index = args.index("|")
+        left, right = args[:index], args[index + 1 :]
+
+        process1 = subprocess.Popen([cmd, *left], stdout=subprocess.PIPE)
+        process2 = subprocess.Popen(
+            [*right], stdin=process1.stdout, stdout=subprocess.PIPE
+        )
+
+        stdout, _ = process2.communicate()
+        print(stdout.decode(), end="")
+
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if "|" in args:
+            self.run_in_pipeline("echo", args)
+            return
 
         if "&" in args:
             self.run_in_background("echo", args, user_input)
@@ -80,6 +98,10 @@ class Commands:
     def type(self, user_input: str):
         args = self.get_command_args(user_input)
 
+        if "|" in args:
+            self.run_in_pipeline("type", args)
+            return
+
         if "&" in args:
             self.run_in_background("type", args, user_input)
             return
@@ -97,6 +119,10 @@ class Commands:
     def change_dir(self, user_input: str):
         args = self.get_command_args(user_input)
 
+        if "|" in args:
+            self.run_in_pipeline("cd", args)
+            return
+
         if "&" in args:
             self.run_in_background("cd", args, user_input)
             return
@@ -111,6 +137,10 @@ class Commands:
 
     def complete(self, user_input: str):
         args = self.get_command_args(user_input)
+
+        if "|" in args:
+            self.run_in_pipeline("complete", args)
+            return
 
         if "&" in args:
             self.run_in_background("complete", args, user_input)
@@ -147,6 +177,10 @@ class Commands:
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
         args = self.get_command_args(user_input)
+
+        if "|" in args:
+            self.run_in_pipeline(command, args)
+            return
 
         if "&" in args:
             self.run_in_background(command, args, user_input)
