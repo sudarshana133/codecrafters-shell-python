@@ -1,6 +1,8 @@
+import io
 import os
 import shutil
 import subprocess
+import sys
 
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
@@ -51,13 +53,44 @@ class Commands:
         index = args.index("|")
         left, right = args[:index], args[index + 1 :]
 
-        process1 = subprocess.Popen([cmd, *left], stdout=subprocess.PIPE)
-        process2 = subprocess.Popen([*right], stdin=process1.stdout)
+        left_cmd = cmd
+        right_cmd = right[0]
 
-        if process1.stdout is not None:
-            process1.stdout.close()
+        if left_cmd in self.builtins:
+            old_stdout = sys.stdout
+            sys.stdout = io.StringIO()
 
-        process2.wait()
+            self.builtin_runner(cmd + " " + " ".join(left))
+            left_output = sys.stdout.getvalue()
+            sys.stdout = old_stdout
+
+            if right_cmd in self.builtins:
+                # left built-in | right built-in
+                self.builtin_runner(" ".join(right))
+            else:
+                # left built-in | right external
+                process2 = subprocess.Popen([*right], stdin=subprocess.PIPE, text=True)
+                process2.communicate(input=left_output)
+
+        else:
+            # left external
+            if right_cmd in self.builtins:
+                # left external | right built-in
+                r, w = os.pipe()
+                process1 = subprocess.Popen([cmd, *left], stdout=w)
+                os.close(r)
+                os.close(w)
+
+                self.builtin_runner(" ".join(right))
+            else:
+                # left external | right external
+                process1 = subprocess.Popen([cmd, *left], stdout=subprocess.PIPE)
+                process2 = subprocess.Popen([*right], stdin=process1.stdout)
+
+                if process1.stdout is not None:
+                    process1.stdout.close()
+
+                process2.wait()
 
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
@@ -245,6 +278,44 @@ class Commands:
 
         if result.stderr:
             print(result.stderr, end="")
+
+    def builtin_runner(self, user_input: str):
+        user_command = user_input.strip()
+
+        if user_command == "exit":
+            sys.exit(0)
+
+        command = self.get_command(user_command)
+
+        if command == "echo":
+            self.echo(user_input)
+            return
+
+        if command == "type":
+            self.type(user_input)
+            return
+
+        if command == "pwd":
+            self.pwd()
+            return
+
+        if command == "cd":
+            self.change_dir(user_input)
+            return
+
+        if command == "complete":
+            self.complete(user_input)
+            return
+
+        if command == "jobs":
+            self.jobs_command(user_input)
+            return
+
+        if self.is_custom(command):
+            self.execute_custom_command(user_input)
+            return
+
+        print(f"{command}: command not found")
 
 
 commands = Commands()

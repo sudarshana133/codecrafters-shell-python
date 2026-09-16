@@ -18,42 +18,7 @@ def main():
         jobs.clean_complete_jobs(is_background=True)
         user_input = input("$ ")
 
-        user_command = user_input.strip()
-
-        if user_command == "exit":
-            break
-
-        command = commands.get_command(user_command)
-
-        if command == "echo":
-            commands.echo(user_input)
-            continue
-
-        if command == "type":
-            commands.type(user_input)
-            continue
-
-        if command == "pwd":
-            commands.pwd()
-            continue
-
-        if command == "cd":
-            commands.change_dir(user_input)
-            continue
-
-        if command == "complete":
-            commands.complete(user_input)
-            continue
-
-        if command == "jobs":
-            commands.jobs_command(user_input)
-            continue
-
-        if commands.is_custom(command):
-            commands.execute_custom_command(user_input)
-            continue
-
-        print(f"{command}: command not found")
+        commands.builtin_runner(user_input)
 
 
 if __name__ == "__main__":
