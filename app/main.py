@@ -44,7 +44,7 @@ def main():
             continue
 
         if command == "jobs":
-            commands.jobs(user_input)
+            commands.jobs_command(user_input)
             continue
 
         if commands.is_custom(command):

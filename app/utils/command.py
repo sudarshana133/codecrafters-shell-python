@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-import sys
 
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
@@ -12,8 +11,13 @@ class Commands:
         self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete", "jobs"]
         # complete command registrations -> Store {completer_command, completer_path}
         self.completers = {}
-        # to track jobs
+        # to track job number
         self.job_num = 1
+        """
+         To track the jobs -> tracker will follow this format
+         job_num -> (pid, status, user_input)
+        """
+        self.jobs: dict[int, tuple[int, str, str]] = {}
 
     def get_command_args(self, user_input: str) -> list[str]:
         args = helpers.splitter(user_input)
@@ -39,11 +43,12 @@ class Commands:
             print(output)
 
     # handle background jobs
-    def run_in_background(self, cmd: str, args: list[str]):
+    def run_in_background(self, cmd: str, args: list[str], user_input: str):
         # remove the & first
         args.remove("&")
         process = subprocess.Popen(cmd + " " + " ".join(args), shell=True)
 
+        self.jobs[self.job_num] = (process.pid, "Running", user_input)
         print(f"[{self.job_num}] {process.pid}")
         self.job_num += 1
 
@@ -51,7 +56,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "&" in args:
-            self.run_in_background("echo", args)
+            self.run_in_background("echo", args, user_input)
             return
 
         if ">" in args or "1>" in args or ">>" in args or "1>>" in args:
@@ -82,7 +87,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "&" in args:
-            self.run_in_background("type", args)
+            self.run_in_background("type", args, user_input)
             return
 
         if args[0] in self.builtins:
@@ -99,7 +104,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "&" in args:
-            self.run_in_background("cd", args)
+            self.run_in_background("cd", args, user_input)
             return
 
         if args[0] == "~":
@@ -114,7 +119,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "&" in args:
-            self.run_in_background("complete", args)
+            self.run_in_background("complete", args, user_input)
             return
 
         if "-p" in args:
@@ -142,15 +147,18 @@ class Commands:
             if command in self.completers:
                 del self.completers[command]
 
-    def jobs(self, user_input: str):
-        pass
+    def jobs_command(self, user_input: str):
+        for job_num in self.jobs:
+            _, status, command = self.jobs[job_num]
+            marker = "+" if job_num == self.job_num - 1 else ""
+            print(f"[{job_num}]{marker}  {status:<24}{command}")
 
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
         args = self.get_command_args(user_input)
 
         if "&" in args:
-            self.run_in_background(command, args)
+            self.run_in_background(command, args, user_input)
             return
 
         index = None
