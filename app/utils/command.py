@@ -4,6 +4,7 @@ import subprocess
 
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
+from app.utils.jobs_command import jobs
 
 
 class Commands:
@@ -148,16 +149,15 @@ class Commands:
                 del self.completers[command]
 
     def jobs_command(self, user_input: str):
-        for job_num in self.jobs:
-            _, status, command = self.jobs[job_num]
-            marker = ""
-            if job_num == self.job_num - 1:
-                marker = "+"
-            elif job_num == self.job_num - 2:
-                marker = "-"
-            else:
-                marker = " "
-            print(f"[{job_num}]{marker}  {status:<24}{command}")
+        for job_num in list(self.jobs):
+            pid, _, command = self.jobs[job_num]
+            marker = jobs.get_marker(job_num, self.job_num)
+            job_status = jobs.get_job_status(pid)
+
+            print(f"[{job_num}]{marker}  {job_status:<24}{command}")
+
+            if job_status == "Done":
+                del self.jobs[job_num]
 
     def execute_custom_command(self, user_input: str):
         command = self.get_command(user_input)
