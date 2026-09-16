@@ -150,7 +150,13 @@ class Commands:
     def jobs_command(self, user_input: str):
         for job_num in self.jobs:
             _, status, command = self.jobs[job_num]
-            marker = "+" if job_num == self.job_num - 1 else ""
+            marker = ""
+            if job_num == self.job_num - 1:
+                marker = "+"
+            elif job_num == self.job_num - 2:
+                marker = "-"
+            else:
+                marker = " "
             print(f"[{job_num}]{marker}  {status:<24}{command}")
 
     def execute_custom_command(self, user_input: str):
