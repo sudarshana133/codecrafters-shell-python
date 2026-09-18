@@ -1,7 +1,10 @@
+import os
 import readline
 
 from app.utils.auto_completer import auto_completer
 from app.utils.command import commands
+from app.utils.file_handler import file_handler
+from app.utils.history_command import history
 from app.utils.jobs_command import jobs
 
 
@@ -22,4 +25,10 @@ def main():
 
 
 if __name__ == "__main__":
+    # read history of commands on startup
+    HISTFILE = os.environ.get("HISTFILE", "")
+    if HISTFILE:
+        content = file_handler.get_file_content(HISTFILE)
+        history.overrite_history(content)
+
     main()

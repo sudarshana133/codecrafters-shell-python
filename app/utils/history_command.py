@@ -6,6 +6,13 @@ class History:
         self.command_history = []
         self.append_pending_history = []
 
+    def overrite_history(self, content: str):
+        if not content:
+            self.command_history = []
+        else:
+            lines = content.split("\n")
+            self.command_history = lines
+
     def add_command(self, cmd: str):
         self.command_history.append(cmd)
         self.append_pending_history.append(cmd)
@@ -20,8 +27,9 @@ class History:
             file_path = args[index + 1]
             file_content = file_handler.get_file_content(file_path)
 
-            lines = file_content.split("\n")
-            self.command_history.extend(lines)
+            if file_content:
+                lines = file_content.split("\n")
+                self.command_history.extend(lines)
             return
 
         if "-w" in args:
