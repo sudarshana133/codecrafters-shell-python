@@ -345,7 +345,7 @@ class Commands:
 
         if command == "declare":
             args = self.get_command_args(user_input)
-            declare.run_declare(user_input, args)
+            declare.run_declare(args)
             return
 
         if self.is_custom(command):

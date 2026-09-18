@@ -9,7 +9,7 @@ class Declare:
         """
         self.variables = {}
 
-    def run_declare(self, user_input: str, args: list[str]):
+    def run_declare(self, args: list[str]):
         # index of -p
         pIndex = helpers.get_index(args, "-p")
         if pIndex != -1:
@@ -26,6 +26,12 @@ class Declare:
             if "=" in arg:
                 var = arg.split("=")[0]
                 value = arg.split("=")[1]
+
+                # validating if the variable name is correct or not
+                if not var.isidentifier():
+                    print(f"declare: `{var}={value}': not a valid identifier")
+                    return
+
                 self.variables[var] = value
 
 
