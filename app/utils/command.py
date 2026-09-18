@@ -336,7 +336,8 @@ class Commands:
             return
 
         if command == "history":
-            history.run_history()
+            args = self.get_command_args(user_input)
+            history.run_history(args)
             return
 
         if self.is_custom(command):
