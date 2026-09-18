@@ -21,6 +21,7 @@ class Commands:
             "complete",
             "jobs",
             "history",
+            "declare",
         ]
         # complete command registrations -> Store {completer_command, completer_path}
         self.completers = {}

@@ -17,6 +17,7 @@ class AutoCompleter:
             "complete",
             "jobs",
             "history",
+            "declare",
         ]
 
     def get_executables(self):
