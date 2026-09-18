@@ -29,6 +29,10 @@ class Commands:
 
     def get_command_args(self, user_input: str) -> list[str]:
         args = helpers.splitter(user_input)
+
+        # replace the $VAR with the value before sending to the command
+        args = declare.replace_values(args)
+
         return args[1:]
 
     def get_command(self, user_input: str) -> str:
