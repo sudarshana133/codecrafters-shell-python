@@ -44,6 +44,9 @@ class FileHandler:
         """
         Return the contents of the file
         """
+        if not os.path.isfile(path):
+            return ""
+
         with open(path, "r") as file:
             content = file.read().strip()
 
