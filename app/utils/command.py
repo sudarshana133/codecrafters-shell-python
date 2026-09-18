@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 
+from app.utils.declare import declare
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
 from app.utils.history_command import history
@@ -340,6 +341,11 @@ class Commands:
         if command == "history":
             args = self.get_command_args(user_input)
             history.run_history(args)
+            return
+
+        if command == "declare":
+            args = self.get_command_args(user_input)
+            declare.run_declare(args)
             return
 
         if self.is_custom(command):

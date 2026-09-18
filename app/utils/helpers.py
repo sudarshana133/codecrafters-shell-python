@@ -63,5 +63,13 @@ class Helpers:
 
         return args
 
+    def get_index(self, args: list[str], character: str) -> int:
+        """
+        Return the index of character if exits else -1
+        """
+        if character in args:
+            return args.index(character)
+        return -1
+
 
 helpers = Helpers()
