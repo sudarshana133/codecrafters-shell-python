@@ -307,6 +307,7 @@ class Commands:
         history.add_command(user_command)
 
         if user_command == "exit":
+            history.write_history_to_file()
             sys.exit(0)
 
         command = self.get_command(user_command)

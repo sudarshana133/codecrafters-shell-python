@@ -1,3 +1,5 @@
+import os
+
 from app.utils.file_handler import file_handler
 
 
@@ -12,6 +14,15 @@ class History:
         else:
             lines = content.split("\n")
             self.command_history = lines
+
+    def write_history_to_file(self):
+        """
+        Write in memory history on exit
+        """
+        file_path = os.environ.get("HISTFILE")
+        if file_path:
+            content = "\n".join(self.command_history) + "\n"
+            file_handler.write_to_file(file_path, content)
 
     def add_command(self, cmd: str):
         self.command_history.append(cmd)
