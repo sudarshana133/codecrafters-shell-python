@@ -16,6 +16,7 @@ class Declare:
         return None
 
     def expand_with_braces(self, args: list[str]) -> list[str]:
+        new_args = []
         for i, arg in enumerate(args):
             if "${" in arg:
                 j = arg.index("{") + 1
@@ -29,10 +30,19 @@ class Declare:
                 value = self.get_value(var)
                 if value is not None:
                     args[i] = arg.replace(f"${{{var}}}", str(value))
+                else:
+                    args[i] = arg.replace(f"${{{var}}}", "")
 
-        return args
+            # Don't push arg if it's empty
+            if args[i] == "":
+                continue
+
+            new_args.append(args[i])
+
+        return new_args
 
     def replace_values(self, args: list[str]) -> list[str]:
+        new_args = []
         for i, arg in enumerate(args):
             if "$" in arg:
                 parts = arg.split("$")
@@ -44,7 +54,14 @@ class Declare:
                     args[i] = prefix + str(value)
                 else:
                     args[i] = prefix
-        return args
+
+            # Don't push arg if it's empty
+            if args[i] == "":
+                continue
+
+            new_args.append(args[i])
+
+        return new_args
 
     def run_declare(self, args: list[str]):
         # index of -p
