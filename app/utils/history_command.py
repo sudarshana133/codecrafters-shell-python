@@ -22,6 +22,15 @@ class History:
             self.command_history.extend(lines)
             return
 
+        if "-w" in args:
+            # get index of -w
+            index = args.index("-w")
+            file_path = args[index + 1]
+            file_handler.write_to_file(
+                file_path, "\n".join(self.command_history) + "\n"
+            )
+            return
+
         n = total - int(args[0]) if args else 0
 
         for i in range(n, len(self.command_history)):
