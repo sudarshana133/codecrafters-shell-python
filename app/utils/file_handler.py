@@ -40,5 +40,14 @@ class FileHandler:
         items = os.listdir(path)
         return items
 
+    def get_file_content(self, path: str) -> str:
+        """
+        Return the contents of the file
+        """
+        with open(path, "r") as file:
+            content = file.read().strip()
+
+        return content
+
 
 file_handler = FileHandler()

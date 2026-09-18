@@ -1,3 +1,6 @@
+from app.utils.file_handler import file_handler
+
+
 class History:
     def __init__(self) -> None:
         self.command_history = []
@@ -7,10 +10,20 @@ class History:
 
     def run_history(self, args: list[str]):
         total = len(self.command_history)
-        if args:
-            n = total - int(args[0])
-        else:
-            n = 0
+
+        # read history from a file path
+        if "-r" in args:
+            # get index of -r
+            index = args.index("-r")
+            file_path = args[index + 1]
+            file_content = file_handler.get_file_content(file_path)
+
+            lines = file_content.split("\n")
+            self.command_history.extend(lines)
+            return
+
+        n = total - int(args[0]) if args else 0
+
         for i in range(n, len(self.command_history)):
             print(f"{i + 1} {self.command_history[i]}")
 
