@@ -11,7 +11,16 @@ from app.utils.jobs_command import jobs
 
 class Commands:
     def __init__(self):
-        self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete", "jobs"]
+        self.builtins = [
+            "echo",
+            "type",
+            "exit",
+            "pwd",
+            "cd",
+            "complete",
+            "jobs",
+            "history",
+        ]
         # complete command registrations -> Store {completer_command, completer_path}
         self.completers = {}
 

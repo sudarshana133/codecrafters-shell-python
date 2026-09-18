@@ -8,7 +8,16 @@ from app.utils.file_handler import file_handler
 
 class AutoCompleter:
     def __init__(self) -> None:
-        self.builtins = ["echo", "type", "exit", "pwd", "cd", "complete", "jobs"]
+        self.builtins = [
+            "echo",
+            "type",
+            "exit",
+            "pwd",
+            "cd",
+            "complete",
+            "jobs",
+            "history",
+        ]
 
     def get_executables(self):
         directories = os.environ.get("PATH", "").split(":")
