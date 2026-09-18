@@ -47,56 +47,69 @@ class Commands:
         job_num = jobs.add_job(process.pid, "Running", user_input)
         print(f"[{job_num}] {process.pid}")
 
-    # handle pipelines
-    def run_in_pipeline(self, cmd: str, args: list[str]):
-        # get index of |
-        index = args.index("|")
-        left, right = args[:index], args[index + 1 :]
+    def run_in_pipeline(self, user_input: str):
+        commands = user_input.split("|")
 
-        left_cmd = cmd
-        right_cmd = right[0]
+        processes = []
+        builtin_output = None
 
-        if left_cmd in self.builtins:
-            old_stdout = sys.stdout
-            sys.stdout = io.StringIO()
+        for i, command in enumerate(commands):
+            cmd = self.get_command(command.strip())
+            args = self.get_command_args(command.strip())
 
-            self.builtin_runner(cmd + " " + " ".join(left))
-            left_output = sys.stdout.getvalue()
-            sys.stdout = old_stdout
-
-            if right_cmd in self.builtins:
-                # left built-in | right built-in
-                self.builtin_runner(" ".join(right))
+            if cmd in self.builtins:
+                # Builtins finish immediately, so we can still capture their output as a string.
+                old_stdout = sys.stdout
+                sys.stdout = io.StringIO()
+                self.builtin_runner(command.strip())
+                builtin_output = sys.stdout.getvalue()
+                sys.stdout = old_stdout
             else:
-                # left built-in | right external
-                process2 = subprocess.Popen([*right], stdin=subprocess.PIPE, text=True)
-                process2.communicate(input=left_output)
+                # External command! We must chain them together.
 
-        else:
-            # left external
-            if right_cmd in self.builtins:
-                # left external | right built-in
-                r, w = os.pipe()
-                process1 = subprocess.Popen([cmd, *left], stdout=w)
-                os.close(r)
-                os.close(w)
+                # 1. Determine where stdin comes from
+                if processes:
+                    stdin_source = processes[-1].stdout  # Read from previous process
+                else:
+                    stdin_source = subprocess.PIPE  # Read from our parent shell
 
-                self.builtin_runner(" ".join(right))
-            else:
-                # left external | right external
-                process1 = subprocess.Popen([cmd, *left], stdout=subprocess.PIPE)
-                process2 = subprocess.Popen([*right], stdin=process1.stdout)
+                # 2. Determine where stdout goes
+                is_last = i == len(commands) - 1
+                stdout_dest = None if is_last else subprocess.PIPE
 
-                if process1.stdout is not None:
-                    process1.stdout.close()
+                # Start the process without waiting for it to finish!
+                process = subprocess.Popen(
+                    [cmd, *args], stdin=stdin_source, stdout=stdout_dest, text=True
+                )
 
-                process2.wait()
+                # If a builtin ran right before this first external command (e.g. `echo "hi" | cat`)
+                # we feed the builtin's string into this process's stdin, then close it.
+                if not processes and builtin_output is not None:
+                    if process.stdin:
+                        process.stdin.write(builtin_output)
+                        process.stdin.close()
+                    builtin_output = None
+
+                # 3. Very Important: Close the previous process's stdout in the parent shell.
+                # This ensures that when `head` closes its end of the pipe, `tail` gets the SIGPIPE
+                # signal and correctly stops running!
+                if processes and processes[-1].stdout:
+                    processes[-1].stdout.close()
+
+                processes.append(process)
+
+        # Wait ONLY for the last process in the pipeline to finish
+        if processes:
+            processes[-1].wait()
+        if builtin_output is not None:
+            # Fallback if the pipeline was only built-in commands
+            print(builtin_output, end="")
 
     def echo(self, user_input: str):
         args = self.get_command_args(user_input)
 
         if "|" in args:
-            self.run_in_pipeline("echo", args)
+            self.run_in_pipeline(user_input)
             return
 
         if "&" in args:
@@ -131,7 +144,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "|" in args:
-            self.run_in_pipeline("type", args)
+            self.run_in_pipeline(user_input)
             return
 
         if "&" in args:
@@ -152,7 +165,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "|" in args:
-            self.run_in_pipeline("cd", args)
+            self.run_in_pipeline(user_input)
             return
 
         if "&" in args:
@@ -171,7 +184,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "|" in args:
-            self.run_in_pipeline("complete", args)
+            self.run_in_pipeline(user_input)
             return
 
         if "&" in args:
@@ -211,7 +224,7 @@ class Commands:
         args = self.get_command_args(user_input)
 
         if "|" in args:
-            self.run_in_pipeline(command, args)
+            self.run_in_pipeline(user_input)
             return
 
         if "&" in args:
