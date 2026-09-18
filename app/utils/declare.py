@@ -15,6 +15,23 @@ class Declare:
             return self.variables[var]
         return None
 
+    def expand_with_braces(self, args: list[str]) -> list[str]:
+        for i, arg in enumerate(args):
+            if "${" in arg:
+                j = arg.index("{") + 1
+                tmp = ""
+                # get the index of }
+                while arg[j] != "}":
+                    tmp += arg[j]
+                    j += 1
+
+                var = tmp
+                value = self.get_value(var)
+                if value is not None:
+                    args[i] = arg.replace(f"${{{var}}}", str(value))
+
+        return args
+
     def replace_values(self, args: list[str]) -> list[str]:
         for i, arg in enumerate(args):
             if "$" in arg:
@@ -22,12 +39,11 @@ class Declare:
                 prefix = parts[0]  # Get the prefix
                 var = parts[1]  # Get the variable name
 
-                value = declare.get_value(var)
+                value = self.get_value(var)
                 if value is not None:
                     args[i] = prefix + str(value)
                 else:
                     args[i] = prefix
-
         return args
 
     def run_declare(self, args: list[str]):
