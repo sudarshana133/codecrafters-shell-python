@@ -6,6 +6,7 @@ import sys
 
 from app.utils.file_handler import file_handler
 from app.utils.helpers import helpers
+from app.utils.history_command import history
 from app.utils.jobs_command import jobs
 
 
@@ -303,6 +304,7 @@ class Commands:
 
     def builtin_runner(self, user_input: str):
         user_command = user_input.strip()
+        history.add_command(user_command)
 
         if user_command == "exit":
             sys.exit(0)
@@ -331,6 +333,10 @@ class Commands:
 
         if command == "jobs":
             self.jobs_command(user_input)
+            return
+
+        if command == "history":
+            history.run_history()
             return
 
         if self.is_custom(command):
